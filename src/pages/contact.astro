@@ -1,0 +1,189 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout title="Contact" description="Neem contact op met Rabar voor een gratis adviesgesprek over je thuisnetwerk of smarthome.">
+  <Header />
+  
+  <main class="pt-24 md:pt-32">
+    <section class="pb-16 md:pb-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-16">
+          <!-- Left: Info -->
+          <div>
+            <h1 class="text-4xl md:text-5xl font-bold text-rabar-navy">
+              Neem contact op
+            </h1>
+            <p class="mt-6 text-lg text-gray-600 leading-relaxed">
+              Benieuwd wat Rabar voor jou kan betekenen? Vul het formulier in of neem direct contact op. 
+              Ik reageer meestal binnen 24 uur.
+            </p>
+
+            <div class="mt-10 space-y-6">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 bg-rabar-blue/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <span class="text-xl">📧</span>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-rabar-navy">E-mail</h3>
+                  <a href="mailto:info@rabar.nl" class="text-gray-600 hover:text-rabar-blue transition-colors">
+                    info@rabar.nl
+                  </a>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 bg-rabar-blue/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <span class="text-xl">📱</span>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-rabar-navy">Telefoon</h3>
+                  <a href="tel:+31612345678" class="text-gray-600 hover:text-rabar-blue transition-colors">
+                    +31 6 12 34 56 78
+                  </a>
+                  <p class="text-sm text-gray-500 mt-1">Ma-Vr, 9:00 - 18:00</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 bg-rabar-blue/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <span class="text-xl">📍</span>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-rabar-navy">Werkgebied</h3>
+                  <p class="text-gray-600">
+                    Regio Rotterdam en omstreken
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-10 p-6 bg-rabar-blue/5 rounded-2xl border border-rabar-blue/10">
+              <h3 class="font-semibold text-rabar-navy mb-2">💡 Wat kun je verwachten?</h3>
+              <ul class="text-sm text-gray-600 space-y-2">
+                <li>✓ Reactie binnen 24 uur</li>
+                <li>✓ Vrijblijvend adviesgesprek</li>
+                <li>✓ Eerlijk en transparant advies</li>
+                <li>✓ Geen verkooppraatjes</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Right: Form -->
+          <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100">
+            <h2 class="text-2xl font-bold text-rabar-navy mb-6">Stuur een bericht</h2>
+            
+            <!-- Replace action URL with your Formspree endpoint -->
+            <form 
+              action="https://formspree.io/f/YOUR_FORM_ID" 
+              method="POST"
+              class="space-y-5"
+            >
+              <div class="grid sm:grid-cols-2 gap-5">
+                <div>
+                  <label for="name" class="block text-sm font-medium text-rabar-navy mb-2">
+                    Naam *
+                  </label>
+                  <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    required
+                    class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-rabar-blue focus:ring-2 focus:ring-rabar-blue/20 outline-none transition-colors"
+                    placeholder="Je naam"
+                  />
+                </div>
+                <div>
+                  <label for="email" class="block text-sm font-medium text-rabar-navy mb-2">
+                    E-mail *
+                  </label>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    required
+                    class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-rabar-blue focus:ring-2 focus:ring-rabar-blue/20 outline-none transition-colors"
+                    placeholder="je@email.nl"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label for="phone" class="block text-sm font-medium text-rabar-navy mb-2">
+                  Telefoonnummer
+                </label>
+                <input 
+                  type="tel" 
+                  id="phone" 
+                  name="phone" 
+                  class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-rabar-blue focus:ring-2 focus:ring-rabar-blue/20 outline-none transition-colors"
+                  placeholder="+31 6 12345678"
+                />
+              </div>
+
+              <div>
+                <label for="subject" class="block text-sm font-medium text-rabar-navy mb-2">
+                  Onderwerp *
+                </label>
+                <select 
+                  id="subject" 
+                  name="subject" 
+                  required
+                  class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-rabar-blue focus:ring-2 focus:ring-rabar-blue/20 outline-none transition-colors bg-white"
+                >
+                  <option value="">Selecteer een onderwerp</option>
+                  <option value="adviesgesprek">Gratis adviesgesprek</option>
+                  <option value="thuisnetwerk">Thuisnetwerk</option>
+                  <option value="smarthome">Smarthome</option>
+                  <option value="beheer">Beheer & Ondersteuning</option>
+                  <option value="anders">Anders</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="message" class="block text-sm font-medium text-rabar-navy mb-2">
+                  Bericht *
+                </label>
+                <textarea 
+                  id="message" 
+                  name="message" 
+                  rows="5" 
+                  required
+                  class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-rabar-blue focus:ring-2 focus:ring-rabar-blue/20 outline-none transition-colors resize-none"
+                  placeholder="Vertel kort over je situatie en wat je wilt bereiken..."
+                ></textarea>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <input 
+                  type="checkbox" 
+                  id="privacy" 
+                  name="privacy" 
+                  required
+                  class="mt-1"
+                />
+                <label for="privacy" class="text-sm text-gray-600">
+                  Ik ga akkoord met de <a href="/privacy" class="text-rabar-blue hover:underline">privacyverklaring</a> *
+                </label>
+              </div>
+
+              <button 
+                type="submit"
+                class="w-full bg-rabar-blue text-white px-6 py-3 rounded-lg font-medium hover:bg-rabar-navy transition-colors flex items-center justify-center gap-2"
+              >
+                Versturen
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>

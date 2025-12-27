@@ -1,0 +1,55 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="bg-rabar-navy text-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
+      <!-- Brand -->
+      <div class="md:col-span-2">
+        <img src="/images/logo.png" alt="Rabar" class="h-10 w-auto brightness-0 invert mb-4" />
+        <p class="text-gray-300 text-sm max-w-md">
+          Rabar ontwerpt, realiseert en beheert thuisnetwerken en smarthomes. 
+          Zonder verplichte abonnementen, zodat jij altijd de controle houdt.
+        </p>
+      </div>
+
+      <!-- Links -->
+      <div>
+        <h4 class="font-semibold mb-4">Diensten</h4>
+        <ul class="space-y-2 text-sm text-gray-300">
+          <li><a href="/diensten/thuisnetwerken" class="hover:text-rabar-blue transition-colors">Thuisnetwerken</a></li>
+          <li><a href="/diensten/smarthome" class="hover:text-rabar-blue transition-colors">Smarthome</a></li>
+          <li><a href="/diensten/beheer" class="hover:text-rabar-blue transition-colors">Beheer & Ondersteuning</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <h4 class="font-semibold mb-4">Contact</h4>
+        <ul class="space-y-2 text-sm text-gray-300">
+          <li>
+            <a href="mailto:info@rabar.nl" class="hover:text-rabar-blue transition-colors">
+              info@rabar.nl
+            </a>
+          </li>
+          <li>
+            <a href="tel:+31612345678" class="hover:text-rabar-blue transition-colors">
+              +31 6 12 34 56 78
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+      <p class="text-sm text-gray-400">
+        © {currentYear} Rabar. Alle rechten voorbehouden.
+      </p>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="/privacy" class="hover:text-rabar-blue transition-colors">Privacy</a>
+        <a href="/voorwaarden" class="hover:text-rabar-blue transition-colors">Voorwaarden</a>
+      </div>
+    </div>
+  </div>
+</footer>

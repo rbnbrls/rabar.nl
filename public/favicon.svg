@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- House outline -->
+  <path d="M16 3L2 14v15a2 2 0 002 2h24a2 2 0 002-2V14L16 3z" fill="none" stroke="#1B2B4B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Chimney -->
+  <path d="M24 8V4h-4v2" fill="none" stroke="#1B2B4B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- WiFi waves -->
+  <path d="M16 25a1 1 0 100-2 1 1 0 000 2z" fill="#00A3E0"/>
+  <path d="M12 21a6 6 0 018 0" fill="none" stroke="#00A3E0" stroke-width="2" stroke-linecap="round"/>
+  <path d="M9 18a10 10 0 0114 0" fill="none" stroke="#00A3E0" stroke-width="2" stroke-linecap="round"/>
+</svg>

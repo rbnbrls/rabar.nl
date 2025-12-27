@@ -1,0 +1,365 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const categories = [
+  {
+    title: 'Verlichting',
+    description: 'Slimme lampen, dimmers en schakelaars. Van sfeerverlichting tot volledig geautomatiseerde lichtscenes.',
+    icon: '💡',
+    examples: ['Philips Hue', 'IKEA Tradfri', 'Zigbee lampen', 'Slimme schakelaars']
+  },
+  {
+    title: 'Klimaat',
+    description: 'Thermostaten, vloerverwarming, airco en ventilatie. Altijd de perfecte temperatuur, energiezuinig.',
+    icon: '🌡️',
+    examples: ['Slimme thermostaten', 'Radiatorknoppen', 'Vloerverwarming', 'Airco-integratie']
+  },
+  {
+    title: 'Zonwering',
+    description: 'Automatische gordijnen, screens en rolluiken. Op basis van tijd, zon of temperatuur.',
+    icon: '🪟',
+    examples: ['Gordijnmotoren', 'Rolluiken', 'Screens', 'Luxaflex']
+  },
+  {
+    title: 'Beveiliging',
+    description: 'Camera\'s, bewegingssensoren, deur/raam-sensoren en alarmsystemen. Lokaal opgeslagen, zonder cloud.',
+    icon: '🔐',
+    examples: ['IP-camera\'s', 'Bewegingssensoren', 'Deur/raamsensoren', 'Rookmelders']
+  },
+  {
+    title: 'Toegang',
+    description: 'Slimme sloten, videodeurbellen en keypads. Weet wie er aan de deur is, waar je ook bent.',
+    icon: '🚪',
+    examples: ['Slimme sloten', 'Videodeurbellen', 'Keypads', 'NFC-tags']
+  },
+  {
+    title: 'Media',
+    description: 'Multi-room audio, TV-integratie en stembesturing. Entertainment in elk vertrek.',
+    icon: '🔊',
+    examples: ['Sonos', 'Multi-room audio', 'TV-bediening', 'Mediaspelers']
+  },
+  {
+    title: 'Energie',
+    description: 'Inzicht in verbruik per apparaat, zonnepanelen integratie en slimme laadpalen.',
+    icon: '⚡',
+    examples: ['Energiemonitoring', 'Slimme pluggen', 'Zonnepanelen', 'Laadpalen']
+  },
+  {
+    title: 'Huishouden',
+    description: 'Robotstofzuigers, wasmachine-notificaties en slimme sensoren voor planten en huisdieren.',
+    icon: '🤖',
+    examples: ['Robotstofzuigers', 'Waterlek-detectie', 'Plantensensoren', 'Huisdier-feeders']
+  }
+];
+
+const principles = [
+  {
+    title: 'Lokaal eerst',
+    description: 'Je smarthome werkt ook als internet uitvalt. Alle automatiseringen draaien lokaal op je eigen hardware.',
+    icon: '🏠'
+  },
+  {
+    title: 'Geen abonnementen',
+    description: 'Eenmalig investeren, geen maandelijkse kosten. Je betaalt alleen voor hardware en installatie.',
+    icon: '💰'
+  },
+  {
+    title: 'Privacy',
+    description: 'Je data blijft in je eigen huis. Geen externe clouds die meekijken of je gegevens verkopen.',
+    icon: '🔒'
+  },
+  {
+    title: 'Open standaarden',
+    description: 'Zigbee, Z-Wave, Matter - ik werk met open protocollen zodat je niet vastzit aan één merk.',
+    icon: '🔓'
+  }
+];
+
+const automationExamples = [
+  {
+    trigger: 'Zonsondergang',
+    action: 'Sfeerverlichting aan, gordijnen dicht',
+    icon: '🌅'
+  },
+  {
+    trigger: 'Iedereen weg',
+    action: 'Verwarming laag, alles uit, alarm aan',
+    icon: '👋'
+  },
+  {
+    trigger: 'Beweging in hal (na 23:00)',
+    action: 'Gedimde verlichting aan',
+    icon: '🌙'
+  },
+  {
+    trigger: 'Wasmachine klaar',
+    action: 'Notificatie op je telefoon',
+    icon: '📱'
+  },
+  {
+    trigger: 'CO2 te hoog',
+    action: 'Ventilatie aan, melding',
+    icon: '💨'
+  },
+  {
+    trigger: 'Energieprijs laag',
+    action: 'Auto laden, boiler verwarmen',
+    icon: '⚡'
+  }
+];
+---
+
+<BaseLayout title="Smarthome" description="Je hele huis slim verbonden. Van verlichting tot klimaat, van beveiliging tot entertainment. Zonder maandelijkse kosten.">
+  <Header />
+  
+  <main class="pt-24 md:pt-32">
+    <!-- Hero -->
+    <section class="pb-16 md:pb-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <a href="/diensten" class="text-rabar-blue text-sm font-medium hover:underline mb-4 inline-block">
+              ← Alle diensten
+            </a>
+            <h1 class="text-4xl md:text-5xl font-bold text-rabar-navy leading-tight">
+              Smarthome
+            </h1>
+            <p class="mt-6 text-lg text-gray-600 leading-relaxed">
+              Je hele huis slim verbonden. Van verlichting tot klimaat, van beveiliging tot entertainment. 
+              Allemaal te bedienen vanaf één app, volledig geautomatiseerd, en zonder maandelijkse kosten.
+            </p>
+            <p class="mt-4 text-lg text-gray-600 leading-relaxed">
+              Ik werk met <strong>Home Assistant</strong> als centraal platform - de meest flexibele en 
+              privacyvriendelijke smarthome-oplossing die er is.
+            </p>
+            <div class="mt-8 flex flex-col sm:flex-row gap-4">
+              <a 
+                href="/contact" 
+                class="inline-flex items-center justify-center bg-rabar-blue text-white px-6 py-3 rounded-lg font-medium hover:bg-rabar-navy transition-colors"
+              >
+                Vraag advies aan
+              </a>
+              <a 
+                href="/werkwijze" 
+                class="inline-flex items-center justify-center border-2 border-rabar-navy text-rabar-navy px-6 py-3 rounded-lg font-medium hover:bg-rabar-navy hover:text-white transition-colors"
+              >
+                Bekijk werkwijze
+              </a>
+            </div>
+          </div>
+          <div>
+            <img 
+              src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80" 
+              alt="Smarthome dashboard"
+              class="rounded-2xl shadow-lg w-full"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Principles -->
+    <section class="py-16 md:py-24 bg-rabar-navy text-white">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold">Mijn aanpak</h2>
+          <p class="mt-4 text-gray-300 max-w-2xl mx-auto">
+            Slimme technologie die voor jou werkt, niet andersom.
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {principles.map((principle) => (
+            <div class="text-center">
+              <span class="text-4xl mb-4 block">{principle.icon}</span>
+              <h3 class="text-lg font-semibold mb-2">{principle.title}</h3>
+              <p class="text-gray-300 text-sm">{principle.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="py-16 md:py-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy">Wat kan er allemaal?</h2>
+          <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+            Van één slimme lamp tot een volledig geautomatiseerd huis - alles is mogelijk.
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {categories.map((category) => (
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-rabar-blue/20 transition-all">
+              <span class="text-3xl mb-3 block">{category.icon}</span>
+              <h3 class="text-lg font-semibold text-rabar-navy mb-2">{category.title}</h3>
+              <p class="text-gray-600 text-sm mb-4">{category.description}</p>
+              <div class="flex flex-wrap gap-1">
+                {category.examples.map((example) => (
+                  <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">{example}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Automation Examples -->
+    <section class="py-16 md:py-24 bg-gray-50">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy">Voorbeelden van automatisering</h2>
+          <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+            Je huis dat meedenkt. Hier zijn een paar voorbeelden van wat er mogelijk is.
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {automationExamples.map((example) => (
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <div class="flex items-center gap-3 mb-3">
+                <span class="text-2xl">{example.icon}</span>
+                <span class="text-sm font-medium text-rabar-blue">Als...</span>
+              </div>
+              <p class="font-semibold text-rabar-navy mb-2">{example.trigger}</p>
+              <div class="flex items-center gap-2 text-sm text-gray-500">
+                <span>→</span>
+                <span>{example.action}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <p class="text-center text-gray-500 mt-8">
+          Dit zijn slechts voorbeelden. De mogelijkheden zijn eindeloos en volledig aan te passen aan jouw wensen.
+        </p>
+      </div>
+    </section>
+
+    <!-- Home Assistant -->
+    <section class="py-16 md:py-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy">Waarom Home Assistant?</h2>
+            <p class="mt-6 text-gray-600 leading-relaxed">
+              Home Assistant is een open-source platform dat duizenden apparaten van honderden merken 
+              ondersteunt. In tegenstelling tot commerciële oplossingen zoals Google Home of Apple HomeKit, 
+              draait alles lokaal en houd jij de volledige controle.
+            </p>
+            <ul class="mt-6 space-y-3">
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-rabar-blue mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span class="text-gray-700">Werkt met vrijwel elk slim apparaat</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-rabar-blue mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span class="text-gray-700">Krachtige automatiseringen zonder programmeerkennis</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-rabar-blue mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span class="text-gray-700">Actieve community en regelmatige updates</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-rabar-blue mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span class="text-gray-700">Op afstand toegankelijk via veilige verbinding</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-rabar-blue mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span class="text-gray-700">Integratie met spraakassistenten als je dat wilt</span>
+              </li>
+            </ul>
+          </div>
+          <div class="bg-rabar-navy rounded-2xl p-8 text-white">
+            <h3 class="text-xl font-semibold mb-4">Hardware opties</h3>
+            <div class="space-y-4">
+              <div class="bg-white/10 rounded-lg p-4">
+                <h4 class="font-medium mb-1">Home Assistant Green</h4>
+                <p class="text-sm text-gray-300">Kant-en-klare oplossing voor starters. Plug & play.</p>
+              </div>
+              <div class="bg-white/10 rounded-lg p-4">
+                <h4 class="font-medium mb-1">Home Assistant Yellow</h4>
+                <p class="text-sm text-gray-300">Met ingebouwde Zigbee. Voor de enthousiasteling.</p>
+              </div>
+              <div class="bg-white/10 rounded-lg p-4">
+                <h4 class="font-medium mb-1">Mini PC / NUC</h4>
+                <p class="text-sm text-gray-300">Maximale prestaties voor grote installaties.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="py-16 md:py-24 bg-gray-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy">Investering</h2>
+          <p class="mt-4 text-gray-600">
+            De kosten hangen af van je wensen en de grootte van je installatie.
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center">
+            <h3 class="font-semibold text-rabar-navy mb-2">Starter</h3>
+            <p class="text-3xl font-bold text-rabar-blue mb-2">vanaf €750</p>
+            <p class="text-sm text-gray-600">Home Assistant installatie met basis automatiseringen</p>
+          </div>
+          <div class="bg-white rounded-xl p-6 shadow-sm border-2 border-rabar-blue text-center relative">
+            <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-rabar-blue text-white text-xs px-3 py-1 rounded-full">Populair</span>
+            <h3 class="font-semibold text-rabar-navy mb-2">Compleet</h3>
+            <p class="text-3xl font-bold text-rabar-blue mb-2">€2.000 - €5.000</p>
+            <p class="text-sm text-gray-600">Meerdere categorieën, dashboard op maat, uitgebreide automatisering</p>
+          </div>
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center">
+            <h3 class="font-semibold text-rabar-navy mb-2">Premium</h3>
+            <p class="text-3xl font-bold text-rabar-blue mb-2">vanaf €5.000</p>
+            <p class="text-sm text-gray-600">Volledig geautomatiseerd huis met alle categorieën</p>
+          </div>
+        </div>
+        
+        <p class="text-center text-sm text-gray-500 mt-8">
+          Prijzen zijn exclusief hardware. Vraag een vrijblijvende offerte aan voor een exacte prijsopgave.
+        </p>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-16 md:py-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy">Klaar voor een slimmer huis?</h2>
+        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+          Plan een vrijblijvend adviesgesprek. Ik denk graag met je mee over de mogelijkheden.
+        </p>
+        <a 
+          href="/contact" 
+          class="mt-8 inline-flex items-center bg-rabar-blue text-white px-8 py-4 rounded-lg font-medium hover:bg-rabar-navy transition-colors"
+        >
+          Neem contact op
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>

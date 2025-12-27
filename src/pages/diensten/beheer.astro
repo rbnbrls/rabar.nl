@@ -1,0 +1,320 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const services = [
+  {
+    title: 'Updates & Onderhoud',
+    description: 'Software updates, security patches en configuratie-optimalisatie. Je systeem blijft veilig en up-to-date.',
+    icon: '🔄',
+    includes: ['Home Assistant updates', 'Firmware updates apparaten', 'Security patches', 'Performance optimalisatie']
+  },
+  {
+    title: 'Remote Support',
+    description: 'Hulp op afstand wanneer je het nodig hebt. Kleine problemen los ik vaak binnen een uur op.',
+    icon: '🖥️',
+    includes: ['Probleemanalyse', 'Configuratiewijzigingen', 'Troubleshooting', 'Advies en uitleg']
+  },
+  {
+    title: 'Monitoring',
+    description: 'Proactieve monitoring van je systemen. Ik zie problemen vaak voordat jij ze merkt.',
+    icon: '📊',
+    includes: ['Systeemgezondheid', 'Connectiviteit', 'Backup status', 'Afwijkende patronen']
+  },
+  {
+    title: 'Uitbreidingen',
+    description: 'Nieuwe apparaten toevoegen, automatiseringen aanpassen of je systeem uitbreiden.',
+    icon: '➕',
+    includes: ['Nieuwe integraties', 'Extra automatiseringen', 'Dashboard aanpassingen', 'Hardware toevoegen']
+  },
+  {
+    title: 'Training',
+    description: 'Leer zelf je systeem beheren. Van basis bediening tot geavanceerde configuratie.',
+    icon: '🎓',
+    includes: ['Basis bediening', 'App uitleg', 'Automatiseringen maken', 'Troubleshooting tips']
+  },
+  {
+    title: 'Documentatie',
+    description: 'Volledige documentatie van je installatie. Handig voor jezelf of een volgende beheerder.',
+    icon: '📝',
+    includes: ['Netwerkschema', 'Apparatenlijst', 'Login gegevens', 'Configuratie backup']
+  }
+];
+
+const packages = [
+  {
+    name: 'Op aanvraag',
+    price: 'Uurtarief',
+    description: 'Betaal alleen wanneer je hulp nodig hebt',
+    features: [
+      'Geen vaste kosten',
+      'Remote support: €75/uur',
+      'On-site: €85/uur + reiskosten',
+      'Reactie binnen 48 uur'
+    ],
+    cta: 'Ideaal voor: Doe-het-zelvers die af en toe hulp nodig hebben',
+    highlighted: false
+  },
+  {
+    name: 'Basis',
+    price: '€29/maand',
+    description: 'Zorgeloos genieten van je smarthome',
+    features: [
+      'Maandelijkse health check',
+      'Kritieke updates',
+      '2 uur support per jaar inclusief',
+      'Reactie binnen 24 uur',
+      'Remote monitoring'
+    ],
+    cta: 'Ideaal voor: Wie zekerheid wil zonder zelf te hoeven updaten',
+    highlighted: true
+  },
+  {
+    name: 'Premium',
+    price: '€59/maand',
+    description: 'Volledig ontzorgd',
+    features: [
+      'Alles van Basis, plus:',
+      'Prioriteit support (4 uur reactie)',
+      '5 uur support per jaar inclusief',
+      'Proactieve optimalisatie',
+      'Seizoensgebonden aanpassingen',
+      'Jaarlijkse on-site check'
+    ],
+    cta: 'Ideaal voor: Wie maximaal wil worden ontzorgd',
+    highlighted: false
+  }
+];
+
+const faqs = [
+  {
+    question: 'Kan ik ook zelf mijn systeem beheren?',
+    answer: 'Absoluut! Ik lever altijd een systeem op dat je zelf kunt beheren. De onderhoudscontracten zijn optioneel voor wie dat liever uitbesteedt of zekerheid wil.'
+  },
+  {
+    question: 'Wat als er iets kapot gaat buiten kantooruren?',
+    answer: 'Met een onderhoudscontract ben ik ook in het weekend bereikbaar voor urgente zaken. Zonder contract werk ik op werkdagen van 9:00-18:00.'
+  },
+  {
+    question: 'Kan ik tussentijds opzeggen?',
+    answer: 'Ja, de contracten zijn maandelijks opzegbaar. Geen lange verplichtingen of opzegtermijnen.'
+  },
+  {
+    question: 'Wat als ik meer support nodig heb dan inbegrepen?',
+    answer: 'Extra uren worden tegen een gereduceerd tarief (€65/uur) afgerekend. Je krijgt altijd vooraf een inschatting.'
+  }
+];
+---
+
+<BaseLayout title="Beheer & Ondersteuning" description="Onderhoud, updates en support voor je thuisnetwerk en smarthome. Zelf doen of uitbesteden - beide kan.">
+  <Header />
+  
+  <main class="pt-24 md:pt-32">
+    <!-- Hero -->
+    <section class="pb-16 md:pb-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <a href="/diensten" class="text-rabar-blue text-sm font-medium hover:underline mb-4 inline-block">
+              ← Alle diensten
+            </a>
+            <h1 class="text-4xl md:text-5xl font-bold text-rabar-navy leading-tight">
+              Beheer & Ondersteuning
+            </h1>
+            <p class="mt-6 text-lg text-gray-600 leading-relaxed">
+              Zelf de controle houden of liever uitbesteden? Beide kan. Ik help je met onderhoud, 
+              updates en uitbreidingen wanneer je dat nodig hebt.
+            </p>
+            <p class="mt-4 text-gray-600 leading-relaxed">
+              Of je nu een vraag hebt, een nieuw apparaat wilt toevoegen, of gewoon de zekerheid 
+              wilt dat alles goed blijft werken - ik sta voor je klaar.
+            </p>
+            <div class="mt-8 flex flex-col sm:flex-row gap-4">
+              <a 
+                href="/contact" 
+                class="inline-flex items-center justify-center bg-rabar-blue text-white px-6 py-3 rounded-lg font-medium hover:bg-rabar-navy transition-colors"
+              >
+                Vraag advies aan
+              </a>
+              <a 
+                href="#pakketten" 
+                class="inline-flex items-center justify-center border-2 border-rabar-navy text-rabar-navy px-6 py-3 rounded-lg font-medium hover:bg-rabar-navy hover:text-white transition-colors"
+              >
+                Bekijk pakketten
+              </a>
+            </div>
+          </div>
+          <div>
+            <img 
+              src="https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=800&q=80" 
+              alt="Technisch onderhoud"
+              class="rounded-2xl shadow-lg w-full"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Grid -->
+    <section class="py-16 md:py-24 bg-gray-50">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy">Wat kan ik voor je doen?</h2>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {services.map((service) => (
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <span class="text-3xl mb-4 block">{service.icon}</span>
+              <h3 class="text-lg font-semibold text-rabar-navy mb-2">{service.title}</h3>
+              <p class="text-gray-600 text-sm mb-4">{service.description}</p>
+              <ul class="space-y-1">
+                {service.includes.map((item) => (
+                  <li class="text-xs text-gray-500 flex items-center gap-2">
+                    <span class="text-rabar-blue">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Packages -->
+    <section id="pakketten" class="py-16 md:py-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy">Onderhoudspakketten</h2>
+          <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+            Kies voor zekerheid met een onderhoudspakket, of betaal alleen wanneer je hulp nodig hebt.
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+          {packages.map((pkg) => (
+            <div class={`bg-white rounded-2xl p-8 shadow-sm border-2 ${pkg.highlighted ? 'border-rabar-blue relative' : 'border-gray-100'}`}>
+              {pkg.highlighted && (
+                <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-rabar-blue text-white text-xs px-3 py-1 rounded-full">
+                  Meest gekozen
+                </span>
+              )}
+              <h3 class="text-xl font-bold text-rabar-navy">{pkg.name}</h3>
+              <p class="text-3xl font-bold text-rabar-blue mt-2">{pkg.price}</p>
+              <p class="text-gray-600 text-sm mt-2">{pkg.description}</p>
+              
+              <ul class="mt-6 space-y-3">
+                {pkg.features.map((feature) => (
+                  <li class="flex items-start gap-3 text-sm">
+                    <svg class="w-5 h-5 text-rabar-blue mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span class="text-gray-700">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              
+              <p class="mt-6 text-xs text-gray-500 italic">{pkg.cta}</p>
+              
+              <a 
+                href="/contact"
+                class={`mt-6 block text-center py-3 rounded-lg font-medium transition-colors ${
+                  pkg.highlighted 
+                    ? 'bg-rabar-blue text-white hover:bg-rabar-navy' 
+                    : 'bg-gray-100 text-rabar-navy hover:bg-gray-200'
+                }`}
+              >
+                Meer informatie
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Self-service vs Managed -->
+    <section class="py-16 md:py-24 bg-rabar-navy text-white">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold">Zelf doen of uitbesteden?</h2>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+          <div class="bg-white/10 rounded-xl p-8">
+            <h3 class="text-xl font-semibold mb-4">🔧 Zelf aan de knoppen</h3>
+            <p class="text-gray-300 mb-4">
+              Je krijgt een volledig gedocumenteerd systeem met alle tools om zelf te beheren. 
+              Ik leer je hoe alles werkt en je kunt me altijd bellen als je vastloopt.
+            </p>
+            <ul class="space-y-2 text-sm text-gray-300">
+              <li>✓ Volledige controle</li>
+              <li>✓ Geen vaste kosten</li>
+              <li>✓ Leren en experimenteren</li>
+              <li>✓ Support op aanvraag</li>
+            </ul>
+          </div>
+          <div class="bg-white/10 rounded-xl p-8">
+            <h3 class="text-xl font-semibold mb-4">🛡️ Volledig ontzorgd</h3>
+            <p class="text-gray-300 mb-4">
+              Met een onderhoudspakket hoef je nergens naar om te kijken. Ik regel updates, 
+              monitor je systeem en los problemen op voordat je ze merkt.
+            </p>
+            <ul class="space-y-2 text-sm text-gray-300">
+              <li>✓ Geen omkijken naar</li>
+              <li>✓ Proactief onderhoud</li>
+              <li>✓ Snelle support</li>
+              <li>✓ Altijd up-to-date</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="py-16 md:py-24">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy text-center mb-12">
+          Veelgestelde vragen
+        </h2>
+        <div class="space-y-4">
+          {faqs.map((faq) => (
+            <details class="group bg-white rounded-xl border border-gray-100 shadow-sm">
+              <summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+                <span class="font-semibold text-rabar-navy pr-4">{faq.question}</span>
+                <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <div class="px-6 pb-6 text-gray-600 leading-relaxed">
+                {faq.answer}
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-16 md:py-24 bg-gray-50">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy">Hulp nodig of vragen?</h2>
+        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+          Neem contact op voor support, advies over een onderhoudspakket, of gewoon een vraag.
+        </p>
+        <a 
+          href="/contact" 
+          class="mt-8 inline-flex items-center bg-rabar-blue text-white px-8 py-4 rounded-lg font-medium hover:bg-rabar-navy transition-colors"
+        >
+          Neem contact op
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>

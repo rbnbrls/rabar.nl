@@ -1,0 +1,140 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const services = [
+  {
+    id: 'thuisnetwerken',
+    title: 'Thuisnetwerken',
+    icon: '📡',
+    description: 'Een stabiel en snel netwerk is de basis van elk modern huishouden. Of je nu wilt werken vanuit huis, 4K streamt of je smarthome wilt uitbreiden.',
+    features: [
+      'Netwerkontwerp op maat',
+      'Professionele bekabeling (CAT6a/CAT7)',
+      'WiFi-dekking in elk hoekje',
+      'Mesh-netwerken en access points',
+      'VLAN-segmentatie voor veiligheid',
+      'Gigabit en 10Gb switches'
+    ],
+    image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80'
+  },
+  {
+    id: 'smarthome',
+    title: 'Smarthome',
+    icon: '🏠',
+    description: 'Je hele huis slim verbonden. Van verlichting tot klimaat, van beveiliging tot entertainment. Allemaal te bedienen vanaf één app, zonder maandelijkse kosten.',
+    features: [
+      'Home Assistant integratie',
+      'Slimme verlichting (Zigbee, Z-Wave)',
+      'Klimaatregeling en thermostaten',
+      'Zonwering automatisering',
+      'Sloten en toegangscontrole',
+      'Media- en audiodistributie'
+    ],
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80'
+  },
+  {
+    id: 'beheer',
+    title: 'Beheer & Ondersteuning',
+    icon: '🔧',
+    description: 'Zelf de controle houden of liever uitbesteden? Beide kan. Ik help je met onderhoud, updates en uitbreidingen wanneer je dat nodig hebt.',
+    features: [
+      'Periodiek onderhoud en updates',
+      'Remote support en monitoring',
+      'Training en documentatie',
+      'Uitbreidingen en aanpassingen',
+      'Troubleshooting',
+      'Seizoensgebonden optimalisatie'
+    ],
+    image: 'https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=800&q=80'
+  }
+];
+---
+
+<BaseLayout title="Diensten" description="Rabar ontwerpt, realiseert en beheert thuisnetwerken en smarthomes. Bekijk onze diensten.">
+  <Header />
+  
+  <main class="pt-24 md:pt-32">
+    <!-- Hero -->
+    <section class="pb-16 md:pb-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl">
+          <h1 class="text-4xl md:text-5xl font-bold text-rabar-navy">
+            Diensten
+          </h1>
+          <p class="mt-6 text-lg text-gray-600 leading-relaxed">
+            Van een solide netwerkfundament tot volledig geautomatiseerd wonen. 
+            Ik help je bij elke stap, met oplossingen die passen bij jouw situatie en budget.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Detail -->
+    {services.map((service, index) => (
+      <section id={service.id} class={`py-16 md:py-24 ${index % 2 === 1 ? 'bg-gray-50' : ''}`}>
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class={`grid md:grid-cols-2 gap-12 items-center ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
+            <div class={index % 2 === 1 ? 'md:order-2' : ''}>
+              <div class="flex items-center gap-3 mb-4">
+                <span class="text-4xl">{service.icon}</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy">{service.title}</h2>
+              </div>
+              <p class="text-gray-600 leading-relaxed mb-6">
+                {service.description}
+              </p>
+              <ul class="space-y-3">
+                {service.features.map((feature) => (
+                  <li class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-rabar-blue mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span class="text-gray-700">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              <a 
+                href="/contact" 
+                class="mt-8 inline-flex items-center bg-rabar-blue text-white px-6 py-3 rounded-lg font-medium hover:bg-rabar-navy transition-colors"
+              >
+                Vraag advies aan
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </a>
+            </div>
+            <div class={index % 2 === 1 ? 'md:order-1' : ''}>
+              <img 
+                src={service.image} 
+                alt={service.title}
+                class="rounded-2xl shadow-lg w-full aspect-[4/3] object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+    ))}
+
+    <!-- Approach Teaser -->
+    <section class="py-16 md:py-24 bg-rabar-navy text-white">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold">Hoe werkt het?</h2>
+        <p class="mt-4 text-gray-300 max-w-2xl mx-auto">
+          Van eerste gesprek tot oplevering: een helder proces zonder verrassingen.
+        </p>
+        <a 
+          href="/werkwijze" 
+          class="mt-8 inline-flex items-center bg-white text-rabar-navy px-6 py-3 rounded-lg font-medium hover:bg-rabar-blue hover:text-white transition-colors"
+        >
+          Bekijk de werkwijze
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>

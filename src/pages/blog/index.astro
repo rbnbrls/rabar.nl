@@ -1,0 +1,84 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import BlogPostPreview from '../../components/BlogPostPreview.astro';
+import { getPosts } from '../../lib/ghost';
+
+const posts = await getPosts(12);
+---
+
+<BaseLayout title="Blog" description="Tips, handleidingen en nieuws over smarthomes en thuisnetwerken van Rabar.">
+  <Header />
+  
+  <main class="pt-24 md:pt-32">
+    <!-- Hero -->
+    <section class="pb-12 md:pb-16">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl">
+          <h1 class="text-4xl md:text-5xl font-bold text-rabar-navy">
+            Blog
+          </h1>
+          <p class="mt-6 text-lg text-gray-600 leading-relaxed">
+            Tips, handleidingen en nieuws over smarthomes en thuisnetwerken. 
+            Van beginners-guides tot geavanceerde automatiseringen.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Blog Posts Grid -->
+    <section class="pb-16 md:pb-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {posts.length > 0 ? (
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {posts.map((post) => (
+              <BlogPostPreview
+                title={post.title}
+                excerpt={post.excerpt}
+                date={post.published_at}
+                slug={post.slug}
+                image={post.feature_image || undefined}
+              />
+            ))}
+          </div>
+        ) : (
+          <div class="text-center py-16">
+            <div class="text-6xl mb-4">📝</div>
+            <h2 class="text-xl font-semibold text-rabar-navy mb-2">Binnenkort meer artikelen</h2>
+            <p class="text-gray-600">Ik werk aan nieuwe content. Check later terug!</p>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <!-- Newsletter CTA -->
+    <section class="py-16 md:py-24 bg-rabar-navy text-white">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold">Blijf op de hoogte</h2>
+        <p class="mt-4 text-gray-300 max-w-2xl mx-auto">
+          Ontvang nieuwe artikelen en tips direct in je inbox. Geen spam, alleen waardevolle content.
+        </p>
+        <form class="mt-8 flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+          <input 
+            type="email" 
+            placeholder="je@email.nl" 
+            class="flex-1 px-4 py-3 rounded-lg text-rabar-navy focus:outline-none focus:ring-2 focus:ring-rabar-blue"
+            required
+          />
+          <button 
+            type="submit"
+            class="bg-rabar-blue text-white px-6 py-3 rounded-lg font-medium hover:bg-white hover:text-rabar-navy transition-colors"
+          >
+            Aanmelden
+          </button>
+        </form>
+        <p class="mt-4 text-xs text-gray-400">
+          Je kunt je op elk moment uitschrijven.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>

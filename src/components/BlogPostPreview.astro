@@ -1,0 +1,44 @@
+---
+interface Props {
+  title: string;
+  excerpt: string;
+  date: string;
+  slug: string;
+  image?: string;
+}
+
+const { title, excerpt, date, slug, image } = Astro.props;
+
+const formattedDate = new Date(date).toLocaleDateString('nl-NL', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric'
+});
+---
+
+<article class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100">
+  {image && (
+    <div class="aspect-video overflow-hidden">
+      <img 
+        src={image} 
+        alt={title}
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+      />
+    </div>
+  )}
+  <div class="p-6">
+    <time class="text-xs text-gray-500 uppercase tracking-wide">{formattedDate}</time>
+    <h3 class="text-lg font-semibold text-rabar-navy mt-2 mb-2 group-hover:text-rabar-blue transition-colors">
+      <a href={`/blog/${slug}`}>{title}</a>
+    </h3>
+    <p class="text-gray-600 text-sm leading-relaxed line-clamp-2">
+      {excerpt}
+    </p>
+    <a href={`/blog/${slug}`} class="mt-4 inline-flex items-center text-rabar-blue text-sm font-medium">
+      Lees meer
+      <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </a>
+  </div>
+</article>

@@ -1,0 +1,193 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const steps = [
+  {
+    number: '01',
+    title: 'Kennismaking',
+    description: 'We beginnen met een vrijblijvend gesprek over jouw wensen, situatie en budget. Wat wil je bereiken? Welke apparatuur heb je al? Waar loop je tegenaan?',
+    duration: '30-60 min',
+    icon: '💬'
+  },
+  {
+    number: '02',
+    title: 'Inventarisatie',
+    description: 'Ik kom bij je langs om de situatie ter plekke te bekijken. Hoe is de huidige bekabeling? Waar zitten de schakeldraden? Welke integraties zijn mogelijk?',
+    duration: '1-2 uur',
+    icon: '🔍'
+  },
+  {
+    number: '03',
+    title: 'Advies & Offerte',
+    description: 'Op basis van de inventarisatie stel ik een plan op met concrete oplossingen en producten. Je krijgt een heldere offerte zonder verborgen kosten.',
+    duration: '3-5 werkdagen',
+    icon: '📋'
+  },
+  {
+    number: '04',
+    title: 'Realisatie',
+    description: 'Na akkoord ga ik aan de slag. Ik installeer en configureer alles, test uitgebreid en zorg dat alles naadloos samenwerkt.',
+    duration: 'Afhankelijk van project',
+    icon: '🔧'
+  },
+  {
+    number: '05',
+    title: 'Oplevering & Training',
+    description: 'Ik loop alles met je door, leg uit hoe je alles bedient en beantwoord al je vragen. Je krijgt documentatie en toegang tot je eigen systemen.',
+    duration: '1-2 uur',
+    icon: '🎓'
+  },
+  {
+    number: '06',
+    title: 'Nazorg',
+    description: 'Ook na oplevering sta ik voor je klaar. Of je nu hulp nodig hebt, wilt uitbreiden of vragen hebt. Support kun je afnemen per incident of via een onderhoudscontract.',
+    duration: 'Doorlopend',
+    icon: '🤝'
+  }
+];
+
+const faqs = [
+  {
+    question: 'Moet ik technisch onderlegd zijn?',
+    answer: 'Nee, absoluut niet. Ik regel alles voor je en zorg dat het systeem makkelijk te bedienen is. Wil je wel zelf aan de knoppen zitten? Dan leer ik je graag hoe alles werkt.'
+  },
+  {
+    question: 'Werkt het ook zonder internet?',
+    answer: 'Ja! Ik focus op lokale oplossingen. Je smarthome blijft gewoon werken, ook als je internetverbinding uitvalt. Alleen functies die echt internet nodig hebben (zoals op afstand bedienen) werken dan tijdelijk niet.'
+  },
+  {
+    question: 'Kan ik mijn bestaande apparatuur behouden?',
+    answer: 'Meestal wel. Ik kijk altijd eerst wat je al hebt en hoe we dat kunnen integreren. Soms is vervanging verstandiger, maar dat beslis je zelf op basis van eerlijk advies.'
+  },
+  {
+    question: 'Hoe zit het met mijn privacy?',
+    answer: 'Jouw data blijft bij jou. Ik werk met systemen die lokaal draaien, zonder afhankelijkheid van externe clouds. Geen bedrijf dat meekijkt of je gegevens verkoopt.'
+  },
+  {
+    question: 'Wat als er iets kapot gaat?',
+    answer: 'Ik ben bereikbaar voor support. Kleine zaken lossen we vaak op afstand op. Voor grotere problemen kom ik langs. Met een onderhoudscontract heb je garantie op snelle hulp.'
+  }
+];
+---
+
+<BaseLayout title="Werkwijze" description="Van eerste gesprek tot oplevering: zo werkt Rabar. Een helder proces zonder verrassingen.">
+  <Header />
+  
+  <main class="pt-24 md:pt-32">
+    <!-- Hero -->
+    <section class="pb-16 md:pb-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl">
+          <h1 class="text-4xl md:text-5xl font-bold text-rabar-navy">
+            Werkwijze
+          </h1>
+          <p class="mt-6 text-lg text-gray-600 leading-relaxed">
+            Van eerste gesprek tot oplevering: een helder proces zonder verrassingen. 
+            Ik neem je mee door elke stap, zodat je precies weet wat je kunt verwachten.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Process Steps -->
+    <section class="pb-16 md:pb-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="space-y-8 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8">
+          {steps.map((step) => (
+            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-4 mb-4">
+                <span class="text-3xl">{step.icon}</span>
+                <span class="text-sm font-bold text-rabar-blue">{step.number}</span>
+              </div>
+              <h3 class="text-xl font-semibold text-rabar-navy mb-2">{step.title}</h3>
+              <p class="text-gray-600 text-sm leading-relaxed mb-4">{step.description}</p>
+              <div class="text-xs text-gray-400 font-medium uppercase tracking-wide">
+                ⏱️ {step.duration}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Principles -->
+    <section class="py-16 md:py-24 bg-rabar-navy text-white">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">Mijn principes</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="text-center">
+            <div class="text-4xl mb-4">🎯</div>
+            <h3 class="text-lg font-semibold mb-2">Eerlijk advies</h3>
+            <p class="text-gray-300 text-sm">
+              Ik adviseer wat je nodig hebt, niet wat het meeste oplevert. 
+              Soms is "nog even wachten" het beste advies.
+            </p>
+          </div>
+          <div class="text-center">
+            <div class="text-4xl mb-4">📐</div>
+            <h3 class="text-lg font-semibold mb-2">Kwaliteit boven kwantiteit</h3>
+            <p class="text-gray-300 text-sm">
+              Liever een paar dingen goed dan veel dingen half. 
+              Ik bouw systemen die jarenlang meegaan.
+            </p>
+          </div>
+          <div class="text-center">
+            <div class="text-4xl mb-4">🔓</div>
+            <h3 class="text-lg font-semibold mb-2">Open standaarden</h3>
+            <p class="text-gray-300 text-sm">
+              Geen vendor lock-in. Je bent vrij om later zelf verder te gaan 
+              of een andere partij in te schakelen.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="py-16 md:py-24">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy text-center mb-12">
+          Veelgestelde vragen
+        </h2>
+        <div class="space-y-4">
+          {faqs.map((faq) => (
+            <details class="group bg-white rounded-xl border border-gray-100 shadow-sm">
+              <summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+                <span class="font-semibold text-rabar-navy pr-4">{faq.question}</span>
+                <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <div class="px-6 pb-6 text-gray-600 leading-relaxed">
+                {faq.answer}
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-16 md:py-24 bg-gray-50">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy">Vragen of klaar om te starten?</h2>
+        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+          Plan een vrijblijvend kennismakingsgesprek. Ik denk graag met je mee.
+        </p>
+        <a 
+          href="/contact" 
+          class="mt-8 inline-flex items-center bg-rabar-blue text-white px-8 py-4 rounded-lg font-medium hover:bg-rabar-navy transition-colors"
+        >
+          Neem contact op
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>

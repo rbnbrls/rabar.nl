@@ -1,0 +1,134 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { getPosts, getPostBySlug } from '../../lib/ghost';
+
+export async function getStaticPaths() {
+  const posts = await getPosts(100);
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post }
+  }));
+}
+
+const { post } = Astro.props;
+
+if (!post) {
+  return Astro.redirect('/blog');
+}
+
+const formattedDate = new Date(post.published_at).toLocaleDateString('nl-NL', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric'
+});
+---
+
+<BaseLayout title={post.title} description={post.excerpt}>
+  <Header />
+  
+  <main class="pt-24 md:pt-32">
+    <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-24">
+      <!-- Header -->
+      <header class="mb-8 md:mb-12">
+        <div class="flex items-center gap-4 text-sm text-gray-500 mb-4">
+          <time>{formattedDate}</time>
+          {post.reading_time && (
+            <>
+              <span>•</span>
+              <span>{post.reading_time} min leestijd</span>
+            </>
+          )}
+        </div>
+        <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-rabar-navy leading-tight">
+          {post.title}
+        </h1>
+        {post.tags && post.tags.length > 0 && (
+          <div class="flex flex-wrap gap-2 mt-6">
+            {post.tags.map((tag) => (
+              <span class="bg-rabar-blue/10 text-rabar-blue text-xs font-medium px-3 py-1 rounded-full">
+                {tag.name}
+              </span>
+            ))}
+          </div>
+        )}
+      </header>
+
+      <!-- Feature Image -->
+      {post.feature_image && (
+        <img 
+          src={post.feature_image} 
+          alt={post.title}
+          class="w-full aspect-video object-cover rounded-2xl mb-8 md:mb-12"
+        />
+      )}
+
+      <!-- Content -->
+      <div class="prose prose-lg max-w-none prose-headings:text-rabar-navy prose-a:text-rabar-blue prose-a:no-underline hover:prose-a:underline">
+        <Fragment set:html={post.html} />
+      </div>
+
+      <!-- Back to blog -->
+      <div class="mt-12 pt-8 border-t border-gray-200">
+        <a href="/blog" class="inline-flex items-center text-rabar-blue font-medium hover:underline">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+          </svg>
+          Terug naar blog
+        </a>
+      </div>
+    </article>
+
+    <!-- CTA -->
+    <section class="py-16 md:py-24 bg-gray-50">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-2xl md:text-3xl font-bold text-rabar-navy">Hulp nodig bij jouw smarthome?</h2>
+        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+          Ik help je graag met advies, ontwerp en realisatie van jouw ideale setup.
+        </p>
+        <a 
+          href="/contact" 
+          class="mt-8 inline-flex items-center bg-rabar-blue text-white px-6 py-3 rounded-lg font-medium hover:bg-rabar-navy transition-colors"
+        >
+          Neem contact op
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .prose h2 {
+    @apply mt-10 mb-4;
+  }
+  .prose h3 {
+    @apply mt-8 mb-3;
+  }
+  .prose p {
+    @apply mb-4 leading-relaxed;
+  }
+  .prose ul, .prose ol {
+    @apply mb-4 pl-6;
+  }
+  .prose li {
+    @apply mb-2;
+  }
+  .prose code {
+    @apply bg-gray-100 px-1.5 py-0.5 rounded text-sm;
+  }
+  .prose pre {
+    @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4;
+  }
+  .prose pre code {
+    @apply bg-transparent p-0;
+  }
+  .prose img {
+    @apply rounded-lg;
+  }
+  .prose blockquote {
+    @apply border-l-4 border-rabar-blue pl-4 italic text-gray-600;
+  }
+</style>

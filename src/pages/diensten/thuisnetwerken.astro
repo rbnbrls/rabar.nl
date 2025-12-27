@@ -1,0 +1,249 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const features = [
+  {
+    title: 'Netwerkontwerp op maat',
+    description: 'Elk huis is anders. Ik analyseer je situatie en ontwerp een netwerk dat past bij jouw woning, gezinsgrootte en gebruik.',
+    icon: '📐'
+  },
+  {
+    title: 'Professionele bekabeling',
+    description: 'CAT6a of CAT7 bekabeling voor toekomstbestendige snelheden. Netjes weggewerkt, met duidelijke labeling.',
+    icon: '🔌'
+  },
+  {
+    title: 'WiFi zonder dode hoeken',
+    description: 'Mesh-netwerken en strategisch geplaatste access points zorgen voor stabiele dekking in elk hoekje van je huis.',
+    icon: '📶'
+  },
+  {
+    title: 'Centrale patchkast',
+    description: 'Alle bekabeling komt samen in een overzichtelijke patchkast. Makkelijk te beheren en uit te breiden.',
+    icon: '🗄️'
+  },
+  {
+    title: 'VLAN-segmentatie',
+    description: 'Scheiding tussen werk, privé en IoT-apparaten voor extra veiligheid. Gasten op een apart netwerk.',
+    icon: '🔒'
+  },
+  {
+    title: 'Gigabit en 10Gb switches',
+    description: 'Managed switches voor optimale prestaties. Van standaard gigabit tot 10Gb voor veeleisende toepassingen.',
+    icon: '⚡'
+  }
+];
+
+const useCases = [
+  {
+    title: 'Thuiswerken',
+    description: 'Stabiele videocalls zonder haperingen, snelle bestandsoverdracht, en betrouwbare VPN-verbindingen.',
+    icon: '💼'
+  },
+  {
+    title: 'Streaming & Gaming',
+    description: '4K streaming op meerdere apparaten tegelijk, lage latency voor gaming, geen buffering.',
+    icon: '🎮'
+  },
+  {
+    title: 'Smart Home basis',
+    description: 'Een solide netwerk is de fundering voor elke smarthome. Betrouwbare verbindingen voor al je slimme apparaten.',
+    icon: '🏠'
+  },
+  {
+    title: 'Beveiliging',
+    description: 'IP-camera\'s, NVR-systemen en alarmsystemen vereisen een betrouwbaar netwerk met voldoende bandbreedte.',
+    icon: '📷'
+  }
+];
+
+const brands = [
+  'UniFi / Ubiquiti',
+  'TP-Link Omada',
+  'MikroTik',
+  'Netgear Pro',
+  'Zyxel',
+  'Ruckus'
+];
+---
+
+<BaseLayout title="Thuisnetwerken" description="Professionele thuisnetwerken met stabiele WiFi-dekking in elk hoekje. Bekabeld waar het kan, draadloos waar het moet.">
+  <Header />
+  
+  <main class="pt-24 md:pt-32">
+    <!-- Hero -->
+    <section class="pb-16 md:pb-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <a href="/diensten" class="text-rabar-blue text-sm font-medium hover:underline mb-4 inline-block">
+              ← Alle diensten
+            </a>
+            <h1 class="text-4xl md:text-5xl font-bold text-rabar-navy leading-tight">
+              Thuisnetwerken
+            </h1>
+            <p class="mt-6 text-lg text-gray-600 leading-relaxed">
+              Een stabiel en snel netwerk is de basis van elk modern huishouden. Of je nu wilt werken 
+              vanuit huis, 4K streamt of je smarthome wilt uitbreiden - het begint allemaal met een 
+              betrouwbare netwerkinfrastructuur.
+            </p>
+            <div class="mt-8 flex flex-col sm:flex-row gap-4">
+              <a 
+                href="/contact" 
+                class="inline-flex items-center justify-center bg-rabar-blue text-white px-6 py-3 rounded-lg font-medium hover:bg-rabar-navy transition-colors"
+              >
+                Vraag advies aan
+              </a>
+              <a 
+                href="/werkwijze" 
+                class="inline-flex items-center justify-center border-2 border-rabar-navy text-rabar-navy px-6 py-3 rounded-lg font-medium hover:bg-rabar-navy hover:text-white transition-colors"
+              >
+                Bekijk werkwijze
+              </a>
+            </div>
+          </div>
+          <div>
+            <img 
+              src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80" 
+              alt="Professionele netwerkswitch"
+              class="rounded-2xl shadow-lg w-full"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section class="py-16 md:py-24 bg-gray-50">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy">Wat ik voor je regel</h2>
+          <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+            Van ontwerp tot oplevering - een compleet netwerk dat jaren meegaat.
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((feature) => (
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <span class="text-3xl mb-4 block">{feature.icon}</span>
+              <h3 class="text-lg font-semibold text-rabar-navy mb-2">{feature.title}</h3>
+              <p class="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Use Cases -->
+    <section class="py-16 md:py-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy">Perfect voor</h2>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {useCases.map((useCase) => (
+            <div class="text-center p-6">
+              <span class="text-4xl mb-4 block">{useCase.icon}</span>
+              <h3 class="text-lg font-semibold text-rabar-navy mb-2">{useCase.title}</h3>
+              <p class="text-gray-600 text-sm">{useCase.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Approach -->
+    <section class="py-16 md:py-24 bg-rabar-navy text-white">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 class="text-3xl md:text-4xl font-bold">Bekabeld waar het kan, draadloos waar het moet</h2>
+            <p class="mt-6 text-gray-300 leading-relaxed">
+              WiFi is handig, maar een bekabelde verbinding is altijd stabieler en sneller. Daarom leg 
+              ik waar mogelijk netwerkkabels - naar je werkplek, mediahoek, en vaste apparaten.
+            </p>
+            <p class="mt-4 text-gray-300 leading-relaxed">
+              Voor smartphones, tablets en laptops zorg ik voor optimale WiFi-dekking met enterprise-grade 
+              access points. Geen consumentenrouters die na twee jaar haperen, maar professionele hardware 
+              die jarenlang probleemloos functioneert.
+            </p>
+          </div>
+          <div class="bg-white/10 rounded-xl p-8">
+            <h3 class="font-semibold text-lg mb-4">Merken waar ik mee werk</h3>
+            <ul class="space-y-3">
+              {brands.map((brand) => (
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-rabar-blue" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  {brand}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Indication -->
+    <section class="py-16 md:py-24">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy">Investering</h2>
+          <p class="mt-4 text-gray-600">
+            Elke situatie is anders. Hier een indicatie om je een idee te geven.
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center">
+            <h3 class="font-semibold text-rabar-navy mb-2">Basis</h3>
+            <p class="text-3xl font-bold text-rabar-blue mb-2">vanaf €500</p>
+            <p class="text-sm text-gray-600">WiFi-optimalisatie en configuratie bestaande apparatuur</p>
+          </div>
+          <div class="bg-white rounded-xl p-6 shadow-sm border-2 border-rabar-blue text-center relative">
+            <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-rabar-blue text-white text-xs px-3 py-1 rounded-full">Populair</span>
+            <h3 class="font-semibold text-rabar-navy mb-2">Compleet</h3>
+            <p class="text-3xl font-bold text-rabar-blue mb-2">€1.500 - €3.000</p>
+            <p class="text-sm text-gray-600">Nieuwe infrastructuur met bekabeling, switch en access points</p>
+          </div>
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center">
+            <h3 class="font-semibold text-rabar-navy mb-2">Premium</h3>
+            <p class="text-3xl font-bold text-rabar-blue mb-2">vanaf €3.000</p>
+            <p class="text-sm text-gray-600">Uitgebreide installatie met 10Gb backbone en meerdere zones</p>
+          </div>
+        </div>
+        
+        <p class="text-center text-sm text-gray-500 mt-8">
+          Prijzen zijn indicatief en afhankelijk van de grootte van je woning en gewenste apparatuur. 
+          Vraag een vrijblijvende offerte aan.
+        </p>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-16 md:py-24 bg-gray-50">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-rabar-navy">Klaar voor een betrouwbaar netwerk?</h2>
+        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+          Plan een vrijblijvend adviesgesprek en ontdek wat er mogelijk is voor jouw situatie.
+        </p>
+        <a 
+          href="/contact" 
+          class="mt-8 inline-flex items-center bg-rabar-blue text-white px-8 py-4 rounded-lg font-medium hover:bg-rabar-navy transition-colors"
+        >
+          Neem contact op
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>

@@ -1,0 +1,134 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const lastUpdated = '1 januari 2025';
+---
+
+<BaseLayout title="Privacyverklaring" description="Hoe Rabar omgaat met je persoonsgegevens.">
+  <Header />
+  
+  <main class="pt-24 md:pt-32">
+    <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-24">
+      <h1 class="text-4xl md:text-5xl font-bold text-rabar-navy mb-4">
+        Privacyverklaring
+      </h1>
+      <p class="text-gray-500 mb-8">Laatst bijgewerkt: {lastUpdated}</p>
+      
+      <div class="prose prose-lg max-w-none prose-headings:text-rabar-navy">
+        <p>
+          Rabar respecteert je privacy en gaat zorgvuldig om met je persoonsgegevens. 
+          In deze privacyverklaring leg ik uit welke gegevens ik verzamel, waarom ik dat doe, 
+          en wat je rechten zijn.
+        </p>
+
+        <h2>Wie is verantwoordelijk?</h2>
+        <p>
+          Rabar is verantwoordelijk voor de verwerking van persoonsgegevens zoals beschreven 
+          in deze privacyverklaring. Rabar is gevestigd in Nederland en bereikbaar via 
+          info@rabar.nl.
+        </p>
+
+        <h2>Welke gegevens verzamel ik?</h2>
+        <p>Ik verzamel alleen gegevens die nodig zijn voor mijn dienstverlening:</p>
+        <ul>
+          <li><strong>Contactgegevens:</strong> naam, e-mailadres, telefoonnummer</li>
+          <li><strong>Adresgegevens:</strong> wanneer ik bij je langs kom voor installatie of onderhoud</li>
+          <li><strong>Communicatie:</strong> berichten die je via het contactformulier of e-mail stuurt</li>
+          <li><strong>Technische gegevens:</strong> configuraties en instellingen van je smarthome-systeem (alleen voor klanten met een onderhoudscontract)</li>
+        </ul>
+
+        <h2>Waarom verzamel ik deze gegevens?</h2>
+        <ul>
+          <li>Om contact met je op te nemen naar aanleiding van een vraag of offerte-aanvraag</li>
+          <li>Om mijn diensten te kunnen leveren (installatie, onderhoud, support)</li>
+          <li>Om facturen te kunnen sturen en betalingen te verwerken</li>
+          <li>Om je systeem te kunnen monitoren en onderhouden (alleen bij onderhoudscontract)</li>
+        </ul>
+
+        <h2>Hoe lang bewaar ik je gegevens?</h2>
+        <ul>
+          <li><strong>Contactformulier berichten:</strong> maximaal 1 jaar na laatste contact</li>
+          <li><strong>Klantgegevens:</strong> 7 jaar na laatste factuur (wettelijke bewaarplicht)</li>
+          <li><strong>Technische configuraties:</strong> tot beëindiging onderhoudscontract</li>
+        </ul>
+
+        <h2>Deel ik gegevens met derden?</h2>
+        <p>
+          Nee, ik deel je gegevens niet met derden, behalve wanneer dit wettelijk verplicht is. 
+          Ik verkoop nooit gegevens aan andere partijen.
+        </p>
+        <p>
+          Voor het contactformulier maak ik gebruik van Formspree. Hun privacybeleid vind je op 
+          <a href="https://formspree.io/legal/privacy-policy" target="_blank" rel="noopener">formspree.io</a>.
+        </p>
+
+        <h2>Beveiliging</h2>
+        <p>
+          Ik neem passende maatregelen om je gegevens te beschermen tegen ongeautoriseerde toegang, 
+          wijziging, openbaarmaking of vernietiging. De website gebruikt HTTPS-versleuteling en 
+          gegevens worden opgeslagen op beveiligde servers.
+        </p>
+
+        <h2>Cookies</h2>
+        <p>
+          Deze website gebruikt geen tracking cookies of analytics. Er worden alleen technisch 
+          noodzakelijke cookies gebruikt voor de werking van de website.
+        </p>
+
+        <h2>Je rechten</h2>
+        <p>Je hebt de volgende rechten met betrekking tot je persoonsgegevens:</p>
+        <ul>
+          <li><strong>Inzage:</strong> je mag opvragen welke gegevens ik van je heb</li>
+          <li><strong>Correctie:</strong> je mag onjuiste gegevens laten corrigeren</li>
+          <li><strong>Verwijdering:</strong> je mag verzoeken om verwijdering van je gegevens</li>
+          <li><strong>Bezwaar:</strong> je mag bezwaar maken tegen de verwerking van je gegevens</li>
+        </ul>
+        <p>
+          Om gebruik te maken van deze rechten kun je contact opnemen via info@rabar.nl. 
+          Ik reageer binnen 30 dagen op je verzoek.
+        </p>
+
+        <h2>Klachten</h2>
+        <p>
+          Als je een klacht hebt over hoe ik met je gegevens omga, hoor ik dat graag. 
+          Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens via 
+          <a href="https://autoriteitpersoonsgegevens.nl" target="_blank" rel="noopener">autoriteitpersoonsgegevens.nl</a>.
+        </p>
+
+        <h2>Wijzigingen</h2>
+        <p>
+          Ik kan deze privacyverklaring aanpassen. De meest recente versie vind je altijd op deze pagina. 
+          Bij belangrijke wijzigingen informeer ik je via e-mail (als je klant bent).
+        </p>
+      </div>
+
+      <div class="mt-12 pt-8 border-t border-gray-200">
+        <a href="/" class="text-rabar-blue font-medium hover:underline">
+          ← Terug naar home
+        </a>
+      </div>
+    </article>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .prose h2 {
+    @apply mt-10 mb-4 text-xl font-semibold;
+  }
+  .prose p {
+    @apply mb-4 leading-relaxed text-gray-600;
+  }
+  .prose ul {
+    @apply mb-4 pl-6 list-disc;
+  }
+  .prose li {
+    @apply mb-2 text-gray-600;
+  }
+  .prose a {
+    @apply text-rabar-blue hover:underline;
+  }
+</style>
