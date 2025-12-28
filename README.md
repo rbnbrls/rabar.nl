@@ -81,8 +81,8 @@ De statische site staat nu in de `dist/` map.
 4. Maak een `.env` bestand:
 
 ```env
-GHOST_URL=https://jouw-blog.ghost.io
-GHOST_KEY=jouw_content_api_key
+GHOST_URL=
+GHOST_KEY=
 ```
 
 Zonder `.env` worden dummy blogposts getoond (handig voor development).
@@ -146,7 +146,3 @@ Bewerk de `.astro` bestanden direct. De content is hardcoded voor maximale snelh
 ## 📄 Licentie
 
 Privé project voor Rabar.
-
----
-
-Gemaakt met ❤️ door Claude
