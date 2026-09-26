@@ -2,3 +2,8 @@
 node_modules
 .env
 dist/
+
+# Coverage output of `npm run coverage`: coverage/lcov.info is the durable
+# evidence and is committed, the regenerable rest (c8 scratch, html report) is not.
+coverage/*
+!coverage/lcov.info

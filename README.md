@@ -44,7 +44,8 @@ rabar-website/
 
 ### Vereisten
 
-- Node.js 18+ 
+- Node.js 22.18+ (de unit tests importeren `src/lib/ghost.ts` rechtstreeks en
+  leunen op Node's native TypeScript type stripping)
 - npm of yarn
 
 ### Installatie
@@ -70,6 +71,28 @@ npm run build
 ```
 
 De statische site staat nu in de `dist/` map.
+
+### Tests en coverage
+
+```bash
+npm test          # node --test tests/*.test.mjs
+npm run coverage  # dezelfde suite via c8: line total + de drempel uit .c8rc.json
+```
+
+- `tests/deploy-workflow.test.mjs` voert de echte `run:`-blokken van
+  `.github/workflows/deploy.yml` uit met een nagebootste `curl`.
+- `tests/ghost.test.mjs` test de Ghost-client (`src/lib/ghost.ts`), inclusief de
+  terugval op de meegeleverde posts als de Content API onbereikbaar is.
+- `tests/coverage-workflow.test.mjs` bewaakt de coverage-tooling zelf.
+- `npm run coverage` meet de broncode in `src/` (met `"all": true` in
+  `.c8rc.json`, dus ook bestanden zonder tests) en faalt onder de drempel
+  (`"lines"`).
+- `coverage/lcov.info` is meegecommit: dat is het duurzame bewijs van de gemeten
+  dekking. `.github/workflows/build.yml` draait dezelfde stap en faalt als het
+  rapport niet meer bij de bron hoort.
+
+CI gebruikt bewust exact Node 22.23.1: de per-regel-tellers in
+`coverage/lcov.info` zijn met die versie gegenereerd.
 
 ## 🔧 Configuratie
 
