@@ -16,6 +16,15 @@
 // Run with `npm test` (node's built-in test runner — this repo has no other test
 // dependency). `node:assert` is used directly so the assertions stay
 // runner-independent.
+//
+// Kanban t_e124e983: the same failure class without a lie to catch it. main @
+// cfdaac52 pinned production to `0g5foqmnwtajdv31rxnr9fej`, an application Coolify
+// had already deleted (HTTP 404 `No resources found.`), so the next push to main
+// could not deploy — the uuid is a copy of provider state, and this factory
+// recreates applications (rabar.nl itself was recreated at 05:54Z on 2026-09-26),
+// so the copy goes stale with no change on this side. The step now resolves the
+// application by *name* and treats the pinned uuid as an override for the cases
+// where a name cannot decide.
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -33,13 +42,36 @@ const TRIGGER_STEP = 'Trigger Coolify deployment';
 const WAIT_STEP = 'Wait for Coolify deployment to finish';
 
 const FAKE_TOKEN = 'fake-coolify-token-value-1234567890';
-const APP_UUID = '0g5foqmnwtajdv31rxnr9fej';
+// The live production application in Coolify project/environment rabar.nl /
+// production, as of kanban t_e124e983 (2026-09-26).
+const APP_UUID = 'gpybljtcutrtp1tnxnsx0ix9';
+const APP_NAME = 'rabar-nl-production';
+// The uuid main @ cfdaac52 pinned, which Coolify answered with 404 `No resources
+// found.` — the application the factory had deleted and recreated.
+const RETIRED_APP_UUID = '0g5foqmnwtajdv31rxnr9fej';
 const UNAUTHENTICATED = '{"message":"Unauthenticated."}';
 const NO_RESOURCES = '{"message":"No resources found."}';
 const QUEUED =
   '{"deployments":[{"message":"Application rabar.nl deployment queued.",' +
   `"resource_uuid":"${APP_UUID}","deployment_uuid":"n6yjc2emtgshw3nnt0riqgdk"}]}`;
 const QUEUED_UUID = 'n6yjc2emtgshw3nnt0riqgdk';
+
+// The applications answers the trigger step's name lookup can receive. The list
+// deliberately holds a second, unrelated application, because a lookup that
+// matched on "any application exists" instead of on the name would still deploy
+// the wrong app.
+const appsListed = (rows) => `200|${JSON.stringify(rows)}`;
+const LIVE_APP = { uuid: APP_UUID, name: APP_NAME, fqdn: 'https://rabar.nl' };
+const UNRELATED_APP = { uuid: 'addproductionuuid0000000', name: 'add-production', fqdn: 'https://add.rubenbarels.nl' };
+const APPS_LISTED = appsListed([UNRELATED_APP, LIVE_APP]);
+
+// Runs the trigger step with the applications answer its name lookup needs, so a
+// test only has to spell out the answers for the calls after that lookup. The
+// runner alias keeps this definition out of the way of the `runStep(TRIGGER_STEP,`
+// call sites below.
+const triggerStepRunner = runStep;
+const trigger = ({ lookup = APPS_LISTED, ...options } = {}) =>
+  triggerStepRunner(TRIGGER_STEP, { ...options, responses: [lookup, ...(options.responses ?? [])] });
 
 // Plays back one `code|body` fixture per call (the last one repeats) and mimics the
 // curl flags the workflow uses, including --fail/--fail-with-body's exit status.
@@ -191,13 +223,13 @@ function runStep(stepName, { responses, token = FAKE_TOKEN, env = {} }) {
 const stepTest = (name, fn) => test(name, { timeout: 60_000 }, fn);
 
 stepTest('trigger step goes green only when Coolify queued a deployment', () => {
-  const { status, githubOutput } = runStep(TRIGGER_STEP, { responses: [`200|${QUEUED}`] });
+  const { status, githubOutput } = trigger({ responses: [`200|${QUEUED}`] });
   assert.equal(status, 0, 'a 200 with a deployment uuid must succeed');
   assert.match(githubOutput, new RegExp(`^deployment_uuid=${QUEUED_UUID}$`, 'm'));
 });
 
 stepTest('trigger step fails on the 404 that started this card (deleted app uuid)', () => {
-  const { status, output, githubOutput } = runStep(TRIGGER_STEP, { responses: [`404|${NO_RESOURCES}`] });
+  const { status, output, githubOutput } = trigger({ responses: [`404|${NO_RESOURCES}`] });
   assert.notEqual(status, 0, 'a 404 from a deleted app uuid must fail the step');
   assert.match(output, /::error/);
   assert.match(output, /404/);
@@ -207,7 +239,7 @@ stepTest('trigger step fails on the 404 that started this card (deleted app uuid
 });
 
 stepTest('trigger step fails on the 401 {"message":"Unauthenticated."} body', () => {
-  const { status, output, githubOutput } = runStep(TRIGGER_STEP, { responses: [`401|${UNAUTHENTICATED}`] });
+  const { status, output, githubOutput } = trigger({ responses: [`401|${UNAUTHENTICATED}`] });
   assert.notEqual(status, 0, `401 must fail the step, got exit ${status}\n${output}`);
   assert.match(output, /::error/);
   assert.match(output, /Unauthenticated/);
@@ -224,7 +256,7 @@ stepTest('trigger step fails when a 2xx body carries no deployments[] entry', ()
     '{"deployments":[{"message":"queued"}]}',
   ];
   for (const body of bodies) {
-    const { status, output, githubOutput } = runStep(TRIGGER_STEP, { responses: [`200|${body}`] });
+    const { status, output, githubOutput } = trigger({ responses: [`200|${body}`] });
     assert.notEqual(status, 0, `200 with ${body} must fail the step, got exit ${status}\n${output}`);
     assert.match(output, /::error/);
     assert.doesNotMatch(githubOutput, /deployment_uuid=/);
@@ -232,28 +264,28 @@ stepTest('trigger step fails when a 2xx body carries no deployments[] entry', ()
 });
 
 stepTest('trigger step fails on a non-JSON body', () => {
-  const { status, output } = runStep(TRIGGER_STEP, { responses: ['200|<html>502 Bad Gateway</html>'] });
+  const { status, output } = trigger({ responses: ['200|<html>502 Bad Gateway</html>'] });
   assert.notEqual(status, 0, 'a non-JSON 200 body must fail the step');
   assert.match(output, /::error/);
 });
 
 stepTest('trigger step fails on transport errors and 5xx responses', () => {
   for (const fixture of ['000|', '500|{"message":"Server Error"}']) {
-    const { status, output } = runStep(TRIGGER_STEP, { responses: [fixture] });
+    const { status, output } = trigger({ responses: [fixture] });
     assert.notEqual(status, 0, `${fixture} must fail the step, got exit ${status}\n${output}`);
     assert.match(output, /::error/);
   }
 });
 
 stepTest('trigger step fails with an actionable message when the token secret is unset', () => {
-  const { status, output } = runStep(TRIGGER_STEP, { responses: [`401|${UNAUTHENTICATED}`], token: '' });
+  const { status, output } = trigger({ responses: [`401|${UNAUTHENTICATED}`], token: '' });
   assert.notEqual(status, 0, 'an empty COOLIFY_API_TOKEN must fail the step');
   assert.match(output, /::error/);
   assert.match(output, /COOLIFY_API_TOKEN/);
 });
 
 stepTest('trigger step never prints the API token', () => {
-  const { output } = runStep(TRIGGER_STEP, { responses: [`200|${QUEUED}`] });
+  const { output } = trigger({ responses: [`200|${QUEUED}`] });
   assert.doesNotMatch(output, new RegExp(FAKE_TOKEN), 'the token must never reach the log');
 });
 
@@ -261,12 +293,96 @@ stepTest('trigger step no longer contains the `|| echo unknown` fallback', () =>
   assert.doesNotMatch(stepRun(TRIGGER_STEP), /\|\| echo "unknown"/);
 });
 
-stepTest('trigger step targets the live Coolify app for this repo', () => {
+stepTest('trigger step names the live production application instead of a pinned uuid', () => {
+  // kanban t_e124e983: the uuid is provider state that changes whenever the
+  // application is recreated, so the step resolves the application by name. The
+  // pinned uuid survives only as the operator override and as the fallback for an
+  // unusable lookup, and it must be a uuid that exists today.
+  const run = stepRun(TRIGGER_STEP);
   assert.match(
-    stepRun(TRIGGER_STEP),
-    new RegExp(`COOLIFY_APP_UUID="\\$\\{COOLIFY_APP_UUID:-${APP_UUID}\\}"`),
-    'the app uuid must be the one that exists in Coolify (rabar.nl / production)',
+    run,
+    new RegExp(`COOLIFY_APP_NAME="\\$\\{COOLIFY_APP_NAME:-${APP_NAME}\\}"`),
+    'the step must resolve the production application by its Coolify name',
   );
+  assert.match(
+    run,
+    new RegExp(`COOLIFY_DEFAULT_APP_UUID="\\$\\{COOLIFY_APP_UUID:-${APP_UUID}\\}"`),
+    'the fallback uuid must be the application that exists in Coolify (rabar.nl / production)',
+  );
+  // A comment may narrate the deleted uuid — the incident belongs in the file's
+  // history — but no executable line may carry it.
+  const executable = workflow.split('\n').filter((line) => !line.trim().startsWith('#')).join('\n');
+  assert.doesNotMatch(executable, new RegExp(RETIRED_APP_UUID), 'a uuid of a deleted application must not be pinned by any line the workflow runs');
+});
+
+// kanban t_e124e983. The factory recreates applications — rabar.nl itself was
+// recreated at 05:54Z on 2026-09-26 while main @ cfdaac52 kept pinning the uuid of
+// the application it replaced, so the next push to main could not deploy. The step
+// therefore resolves the application by name, and fails closed whenever the name
+// cannot decide: an unresolved name must never fall through to an application that
+// merely happens to exist.
+stepTest('trigger step resolves the production application by name before deploying', () => {
+  const { status, output, curlCalls, githubOutput } = trigger({ responses: [`200|${QUEUED}`] });
+  assert.equal(status, 0, output);
+  assert.equal(curlCalls.length, 2, `the lookup must come first and the deploy second, got ${curlCalls.length} calls`);
+  assert.match(curlCalls[0], /\/api\/v1\/applications($|\s)/, `the first call must list applications: ${curlCalls[0]}`);
+  assert.doesNotMatch(curlCalls[0], /\/deploy/, 'the deploy must wait for the lookup');
+  assert.match(curlCalls[1], /\/deploy/, `the second call must dispatch the deployment: ${curlCalls[1]}`);
+  assert.match(curlCalls[1], new RegExp(APP_UUID), 'the deploy must target the resolved application');
+  assert.doesNotMatch(curlCalls[1], new RegExp(RETIRED_APP_UUID), 'the deleted uuid must not be deployed to');
+  assert.match(output, new RegExp(`::notice title=Coolify app resolved::${APP_NAME} → ${APP_UUID}`));
+  assert.match(githubOutput, new RegExp(`^deployment_uuid=${QUEUED_UUID}$`, 'm'));
+});
+
+stepTest('trigger step fails closed when no application carries the configured name', () => {
+  const { status, output, curlCalls, githubOutput } = trigger({ lookup: appsListed([UNRELATED_APP]), responses: [`200|${QUEUED}`] });
+  assert.notEqual(status, 0, `an unmatched name must fail the step, got exit ${status}\n${output}`);
+  assert.match(output, /::error title=Coolify app uuid cannot be resolved::/);
+  assert.match(output, new RegExp(APP_NAME), 'the annotation must name the application that could not be found');
+  assert.ok(curlCalls.every((call) => !call.includes('/deploy')), `no deployment may be dispatched without a resolved application: ${curlCalls.join(' | ')}`);
+  assert.doesNotMatch(githubOutput, /deployment_uuid=/, 'no uuid may be published without a resolved application');
+});
+
+stepTest('trigger step fails closed when several applications share the configured name', () => {
+  // A duplicated name is not hypothetical: the live fleet already lists two
+  // applications called `rubenbarels-nl-development`, so a name that matches more
+  // than one application cannot decide which one production deploys to.
+  const duplicate = { uuid: 'duplicateuuid00000000abc', name: APP_NAME, fqdn: 'https://example.invalid' };
+  const { status, output, curlCalls } = trigger({ lookup: appsListed([LIVE_APP, duplicate]), responses: [`200|${QUEUED}`] });
+  assert.notEqual(status, 0, `an ambiguous name must fail the step, got exit ${status}\n${output}`);
+  assert.match(output, /::error title=Coolify app uuid cannot be resolved::/);
+  assert.match(output, /duplicateuuid00000000abc/, 'the annotation must list the applications that matched');
+  assert.ok(curlCalls.every((call) => !call.includes('/deploy')), 'an ambiguous name must not deploy');
+});
+
+stepTest('trigger step fails closed when the lookup answer is not a list of applications', () => {
+  for (const body of ['{"message":"No resources found."}', 'null', '{}', '"applications"', '<html>502 Bad Gateway</html>']) {
+    const { status, output, curlCalls } = trigger({ lookup: `200|${body}`, responses: [`200|${QUEUED}`] });
+    assert.notEqual(status, 0, `a lookup body of ${body} must fail the step, got exit ${status}\n${output}`);
+    assert.match(output, /::error/);
+    assert.ok(curlCalls.every((call) => !call.includes('/deploy')), `an unusable lookup must not deploy: ${body}`);
+  }
+});
+
+stepTest('trigger step falls back to the pinned uuid when the lookup itself is unavailable', () => {
+  // A rejected lookup (a token without read permission, a 5xx) is not evidence
+  // that the pinned uuid is wrong, so the step still deploys — loudly — to the pin
+  // instead of leaving main unable to ship. If the pin is also gone, the deploy
+  // call answers 404 and the step fails with the deleted-uuid annotation above.
+  for (const fixture of [`401|${UNAUTHENTICATED}`, `403|{"message":"Forbidden."}`, '000|', `503|{"message":"Server Error"}`]) {
+    const { status, output, curlCalls } = trigger({ lookup: fixture, responses: [`200|${QUEUED}`] });
+    assert.equal(status, 0, `${fixture} must not stop the deploy, got exit ${status}\n${output}`);
+    assert.match(output, /::notice title=Coolify app lookup unavailable::/, 'the fallback must be visible in the log');
+    assert.match(curlCalls[1], new RegExp(APP_UUID), 'the fallback must be the pinned uuid');
+  }
+});
+
+stepTest('trigger step refuses a resolved application uuid outside [A-Za-z0-9._-]', () => {
+  const hostile = { uuid: 'bad uuid; curl http://evil.invalid', name: APP_NAME, fqdn: 'https://rabar.nl' };
+  const { status, output, curlCalls } = trigger({ lookup: appsListed([hostile]), responses: [`200|${QUEUED}`] });
+  assert.notEqual(status, 0, `a hostile application uuid must fail the step, got exit ${status}\n${output}`);
+  assert.match(output, /::error title=Coolify returned an unexpected application uuid::/);
+  assert.ok(curlCalls.every((call) => !call.includes('/deploy')), 'an unusable uuid must never reach the provider');
 });
 
 stepTest('trigger step refuses to publish a uuid outside [A-Za-z0-9._-]', () => {
@@ -278,7 +394,7 @@ stepTest('trigger step refuses to publish a uuid outside [A-Za-z0-9._-]', () => 
     '{"deployments":[{"deployment_uuid":"evil\\nmy_output=1"}]}',
   ];
   for (const body of bodies) {
-    const { status, output, githubOutput } = runStep(TRIGGER_STEP, { responses: [`200|${body}`] });
+    const { status, output, githubOutput } = trigger({ responses: [`200|${body}`] });
     assert.notEqual(status, 0, `200 with ${body} must fail the step, got exit ${status}\n${output}`);
     assert.match(output, /::error/);
     assert.doesNotMatch(githubOutput, /deployment_uuid=/, 'no uuid may be published for an unexpected payload');
@@ -289,13 +405,16 @@ stepTest('the Coolify API base and app uuid can be overridden per repository', (
   // Item 5 of kanban t_2b136b43: repo variables win over the fleet defaults, so one
   // workflow body can serve the whole fleet without losing this repo's own values.
   const base = 'https://coolify.example.test/api/v1';
-  const trigger = runStep(TRIGGER_STEP, {
+  // A pinned uuid is the operator's explicit intent, so the step must use it as-is
+  // and must not spend a lookup on it.
+  const pinned = runStep(TRIGGER_STEP, {
     responses: [`200|${QUEUED}`],
     env: { COOLIFY_API_BASE: base, COOLIFY_APP_UUID: 'overridden-app-uuid' },
   });
-  assert.equal(trigger.status, 0, trigger.output);
-  assert.match(trigger.curlCalls.join(' '), new RegExp(`${escapeRegExp(base)}/deploy`));
-  assert.match(trigger.curlCalls.join(' '), /overridden-app-uuid/);
+  assert.equal(pinned.status, 0, pinned.output);
+  assert.match(pinned.curlCalls.join(' '), new RegExp(`${escapeRegExp(base)}/deploy`));
+  assert.match(pinned.curlCalls.join(' '), /overridden-app-uuid/);
+  assert.equal(pinned.curlCalls.length, 1, 'a pinned uuid must not trigger a name lookup');
 
   const wait = runStep(WAIT_STEP, {
     responses: ['200|{"status":"finished"}'],
@@ -457,7 +576,7 @@ const forgedLines = (output) =>
 
 stepTest('a multi-line Coolify body cannot forge an annotation from the trigger step', () => {
   for (const fixture of [`200|${hostileBody}`, `401|${hostileBody}`]) {
-    const { status, output } = runStep(TRIGGER_STEP, { responses: [fixture] });
+    const { status, output } = trigger({ responses: [fixture] });
     assert.notEqual(status, 0, `${fixture} must fail the step`);
     assert.deepEqual(forgedLines(output), [], `the body forged a workflow command:\n${output}`);
 
