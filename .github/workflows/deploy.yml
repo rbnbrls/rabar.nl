@@ -3,11 +3,32 @@
 # The only automatic path from `main` to production for this repo, so a green
 # run must mean "Coolify built and finished the deployment".
 #
-# Issue #6: this workflow used to pipe `curl -s` into
-# `python3 -c ... || echo "unknown"`, so a 401 `{"message":"Unauthenticated."}`
-# body produced `deployment_uuid=unknown` and a green job while nothing was
-# deployed. Every failure mode below is now an explicit, annotated failure:
+# Kanban t_5d2882f3: this workflow used to POST to Coolify app
+# `b8f8kmbenoly2e9ase1b3joj`, which had been deleted — Coolify answered
+# HTTP 404 `{"message":"No resources found."}` — and piped `curl -s` into
+# `python3 -c ... || echo "unknown"`, so that 404 body produced
+# `deployment_uuid=unknown` and a green job while nothing was deployed. The last
+# run that queued anything was 31888050214 (main @ 5d47a4a, conclusion success).
+# The production app exists again as `rabar.nl`
+# (`0g5foqmnwtajdv31rxnr9fej`) in Coolify project/environment
+# `rabar.nl` / `production`.
 #
+# Kanban t_e124e983: that uuid was itself stale by the time it was written — the
+# factory recreated the application at 05:54Z on 2026-09-26 and Coolify mints a
+# new uuid for every recreation, so it answered HTTP 404 `No resources found.` for
+# `0g5foqmnwtajdv31rxnr9fej` and the next push to `main` could not deploy. A uuid
+# in this file is a copy of provider state that goes stale with no change on this
+# side, so step 0 resolves the application by name (`rabar-nl-production`) and
+# fails closed unless exactly one application carries it. `vars.COOLIFY_APP_UUID`
+# still overrides the lookup, and the uuid that exists today is used only when the
+# lookup itself cannot be answered (never as a silent substitute for a name that
+# matched nothing).
+#
+# Every failure mode below is an explicit, annotated failure:
+#
+#   0. Resolve  — GET /api/v1/applications and match the application by name;
+#                 zero matches, several matches and an unparsable answer all fail
+#                 without deploying (kanban t_e124e983).
 #   1. Trigger  — POST /api/v1/deploy and fail unless the response is 2xx AND
 #                 carries a non-empty deployments[0].deployment_uuid.
 #   2. Wait     — poll the deployment record; only `finished` is success, and
@@ -20,24 +41,13 @@
 #                 blaming the timeout. That is the difference between fail-fast
 #                 and fail-slow: every path here was already red, just late.
 #
-# Issue #14: the trigger used to POST an application uuid hardcoded in this file. A
-# Coolify application uuid identifies one record, so re-creating the application
-# (Coolify → delete + deploy again, 2026-09-25) retired that uuid and every later
-# run answered `404 {"message":"No resources found."}` — runs #11 and #12 failed
-# exactly there while `main` shipped nothing. The target is now resolved from the
-# provider by application name (`COOLIFY_APP_NAME`, default
-# `rabar-nl-production`), which survives a re-creation; an explicit
-# `COOLIFY_APP_UUID` (repository variable) still wins and skips the lookup. A
-# missing, ambiguous or unusable lookup answer fails the job with a typed
-# annotation, and a 404 from the trigger is reported as a missing application
-# rather than as a stale token.
-#
 # COOLIFY_API_TOKEN is a Coolify API token with Deploy permission (Coolify →
 # Keys & Tokens → API tokens) stored as a repository secret. It is referenced
 # only through env + ${{ secrets.* }} and never echoed (GitHub masks it anyway).
 #
-# Behaviour is covered by tests/deploy-workflow.test.mjs (`npm test`), which runs
-# these exact `run:` blocks under bash with a stubbed curl.
+# Behaviour is covered by tests/deploy-workflow.test.mjs, which runs these exact
+# `run:` blocks under bash with a stubbed curl:
+#   npm test
 # ─────────────────────────────────────────────────────────────────────────────
 
 name: Deploy to Coolify
@@ -68,23 +78,29 @@ jobs:
           # run block applies, so this repo keeps its own values until a variable
           # is deliberately set.
           COOLIFY_API_BASE: ${{ vars.COOLIFY_API_BASE }}
-          COOLIFY_APP_NAME: ${{ vars.COOLIFY_APP_NAME }}
           COOLIFY_APP_UUID: ${{ vars.COOLIFY_APP_UUID }}
+          # The Coolify *application name* — the app in Coolify's project/environment
+          # rabar.nl / production — not the public domain.
+          COOLIFY_APP_NAME: ${{ vars.COOLIFY_APP_NAME }}
         run: |
           set -euo pipefail
 
           COOLIFY_API_BASE="${COOLIFY_API_BASE:-https://dev.7rb.nl/api/v1}"
-          # The deployment target is selected by application *name*, never by a uuid
-          # baked into this file. A Coolify application uuid identifies one record:
-          # re-creating the application (Coolify → delete + deploy again, which is
-          # how the 2026-09-25 re-creation happened) retires the old uuid, and every
-          # later run then failed with `404 {"message":"No resources found."}` —
-          # exactly what runs #11 and #12 of this workflow reported. The name
-          # survives a re-creation, so the workflow cannot go stale that way.
+          # kanban t_e124e983: this file used to pin production to a Coolify uuid, and
+          # that is provider state — Coolify mints a new uuid every time an
+          # application is recreated, which this factory does. rabar.nl was recreated
+          # at 05:54Z on 2026-09-26, while main @ cfdaac52 kept pinning
+          # `0g5foqmnwtajdv31rxnr9fej`, an application Coolify had already deleted, so
+          # the next push to main answered HTTP 404 `No resources found.` and nothing
+          # was deployed. The application is therefore resolved by name; the uuid
+          # survives only as the operator override and as the fallback for a lookup
+          # that cannot be answered at all.
           COOLIFY_APP_NAME="${COOLIFY_APP_NAME:-rabar-nl-production}"
-          # An explicit COOLIFY_APP_UUID (repository variable) wins over the lookup,
-          # so an operator can pin one application on purpose.
           COOLIFY_APP_UUID="${COOLIFY_APP_UUID:-}"
+          # The application that exists today, used only when the lookup itself is
+          # unavailable (see the notice below) — never as a silent substitute for a
+          # name that matched nothing or matched too much.
+          COOLIFY_DEFAULT_APP_UUID="${COOLIFY_APP_UUID:-gpybljtcutrtp1tnxnsx0ix9}"
 
           if [ -z "${COOLIFY_API_TOKEN:-}" ]; then
             echo "::error title=Coolify API token missing::The COOLIFY_API_TOKEN repository secret is empty or unset, so no deployment can be triggered. Add or rotate it under Settings → Secrets and variables → Actions (Coolify → Keys & Tokens → API tokens)."
@@ -92,96 +108,79 @@ jobs:
           fi
 
           if [ -z "${COOLIFY_APP_UUID}" ]; then
-            # Resolve the one application named "${COOLIFY_APP_NAME}" on this
-            # instance. Zero matches (renamed or removed) and more than one match
-            # (ambiguous) are both typed failures: deploying to a guessed
-            # application is how production ends up serving the wrong revision.
-            APPS_FILE="$(mktemp)"
-            LOOKUP_CODE="$(curl -sS --fail-with-body -o "${APPS_FILE}" -w '%{http_code}' \
+            LOOKUP_FILE="$(mktemp)"
+            LOOKUP_CODE="$(curl -sS --fail-with-body -o "${LOOKUP_FILE}" -w '%{http_code}' \
               -H "Authorization: Bearer ${COOLIFY_API_TOKEN}" \
-              -H "Accept: application/json" \
               "${COOLIFY_API_BASE}/applications" || true)"
-            APP_LIST="$(cat "${APPS_FILE}")"
-            rm -f "${APPS_FILE}"
             case "${LOOKUP_CODE}" in
               ''|*[!0-9]*) LOOKUP_CODE="000" ;;
             esac
-            # The same one-line rule as the trigger and poll bodies (kanban
-            # t_0838bbdf): GitHub parses a step's stdout for workflow commands, so a
-            # body carrying a line break must not reach a log line intact.
-            APP_LIST_ONE_LINE="$(printf '%s' "${APP_LIST}" | tr -d '\r' | tr '\n\t' '  ' | cut -c1-500)"
-
-            echo "Resolving Coolify application ${COOLIFY_APP_NAME} on ${COOLIFY_API_BASE} (HTTP ${LOOKUP_CODE})"
+            LOOKUP_BODY="$(cat "${LOOKUP_FILE}" 2>/dev/null || true)"
+            rm -f "${LOOKUP_FILE}"
+            # One bounded line, for the same reason as RESPONSE_ONE_LINE below: the
+            # body is third-party text (kanban t_0838bbdf).
+            LOOKUP_ONE_LINE="$(printf '%s' "${LOOKUP_BODY}" | tr -d '\r' | tr '\n\t' '  ' | cut -c1-500)"
 
             if [ "${LOOKUP_CODE}" -lt 200 ] || [ "${LOOKUP_CODE}" -ge 300 ]; then
-              echo "::error title=Coolify application lookup failed::GET ${COOLIFY_API_BASE}/applications answered HTTP ${LOOKUP_CODE}: ${APP_LIST_ONE_LINE} (HTTP 401 'Unauthenticated.' means the COOLIFY_API_TOKEN secret is stale or revoked — rotate it and re-run this workflow; issue #6)."
-              exit 1
-            fi
-
-            # The python helper exits 0 (uuid on stdout), 2 (the answer is not a
-            # list of applications), 3 (no application carries the name) or 4 (more
-            # than one does, with their uuids on stdout), so each case can be
-            # annotated for what it is instead of "the deploy failed".
-            set +e
-            COOLIFY_APP_UUID="$(printf '%s' "${APP_LIST}" | COOLIFY_APP_NAME="${COOLIFY_APP_NAME}" python3 -c '
-          import json, os, sys
-
-          name = os.environ["COOLIFY_APP_NAME"]
+              # A rejected lookup — a token without read permission, a 5xx, a
+              # transport error — is not evidence that the pinned uuid is wrong, so
+              # deploy to the pin and say so. If the pin is gone too, the deploy call
+              # below answers 404 and fails with the deleted-application annotation
+              # instead of going green.
+              COOLIFY_APP_UUID="${COOLIFY_DEFAULT_APP_UUID}"
+              echo "::notice title=Coolify app lookup unavailable::GET ${COOLIFY_API_BASE}/applications answered HTTP ${LOOKUP_CODE}: ${LOOKUP_ONE_LINE} — deploying to the pinned application uuid ${COOLIFY_APP_UUID} instead. Set the COOLIFY_APP_UUID repository variable to make this deliberate."
+            else
+              # Exactly one application must carry the name. A name that matches
+              # none, that matches several (the live fleet already lists two
+              # applications called `rubenbarels-nl-development`), or an answer that
+              # cannot be parsed leaves the step unable to decide, and an undecided
+              # step must deploy nothing rather than deploy to whatever exists.
+              MATCHES="$(printf '%s' "${LOOKUP_BODY}" | python3 -c '
+          import json, sys
           try:
               payload = json.load(sys.stdin)
           except ValueError:
-              sys.exit(2)
+              sys.exit(1)
+          name = sys.argv[1]
           if not isinstance(payload, list):
-              sys.exit(2)
-          matches = [entry for entry in payload if isinstance(entry, dict) and entry.get("name") == name]
-          if not matches:
-              sys.exit(3)
-          if len(matches) > 1:
-              sys.stdout.write(" ".join(str(entry.get("uuid") or "?") for entry in matches))
-              sys.exit(4)
-          uuid = str(matches[0].get("uuid") or "")
-          if not uuid:
-              sys.exit(3)
-          sys.stdout.write(uuid)
-          ' 2>/dev/null)"
-            RESOLVE_STATUS=$?
-            set -e
+              sys.exit(1)
+          uuids = [str(row.get("uuid") or "") for row in payload
+                   if isinstance(row, dict) and str(row.get("name") or "") == name]
+          sys.stdout.write("%d|%s|%s" % (len(uuids), uuids[0] if len(uuids) == 1 else "", ",".join(uuids[:5])))
+          ' "${COOLIFY_APP_NAME}" 2>/dev/null || true)"
 
-            case "${RESOLVE_STATUS}" in
-              0) ;;
-              2)
-                echo "::error title=Coolify application list is unusable::GET ${COOLIFY_API_BASE}/applications answered HTTP ${LOOKUP_CODE} with a body that is not a list of applications, so the deployment target ${COOLIFY_APP_NAME} cannot be resolved: ${APP_LIST_ONE_LINE}"
-                exit 1
-                ;;
-              4)
-                CANDIDATES_ONE_LINE="$(printf '%s' "${COOLIFY_APP_UUID}" | tr -d '\r' | tr '\n\t' '  ' | cut -c1-300)"
-                echo "::error title=Coolify application name is ambiguous::${COOLIFY_APP_NAME} matches more than one application on ${COOLIFY_API_BASE} (${CANDIDATES_ONE_LINE}), so the deployment target is not unique. Rename one of them, or set the COOLIFY_APP_UUID repository variable to the application that must be deployed."
-                exit 1
-                ;;
-              *)
-                echo "::error title=Coolify application not found::No application named ${COOLIFY_APP_NAME} exists on ${COOLIFY_API_BASE}, so nothing can be deployed. The application was renamed or re-created — runs #11 and #12 failed on a uuid that no longer existed for exactly that reason. Read GET ${COOLIFY_API_BASE}/applications back, then update COOLIFY_APP_NAME (or the COOLIFY_APP_UUID repository variable) to the live application."
-                exit 1
-                ;;
-            esac
+              MATCH_COUNT="${MATCHES%%|*}"
+              MATCH_REMAINDER="${MATCHES#*|}"
+              MATCH_UUID="${MATCH_REMAINDER%%|*}"
+              MATCH_LIST="${MATCH_REMAINDER#*|}"
 
-            # The resolved uuid is interpolated into the request body, so refuse
-            # anything that is not the plain identifier Coolify hands out.
-            case "${COOLIFY_APP_UUID}" in
-              ''|*[!A-Za-z0-9._-]*)
-                echo "::error title=Coolify returned an unusable application uuid::The application resolved for ${COOLIFY_APP_NAME} is not a plain [A-Za-z0-9._-] identifier, so it is not deployed: ${APP_LIST_ONE_LINE}"
+              if [ "${MATCH_COUNT}" != "1" ] || [ -z "${MATCH_UUID}" ]; then
+                echo "::error title=Coolify app uuid cannot be resolved::GET ${COOLIFY_API_BASE}/applications listed ${MATCH_COUNT:-0} application(s) named '${COOLIFY_APP_NAME}' (uuids: ${MATCH_LIST:-none}), and exactly one is required — nothing was deployed. Set the COOLIFY_APP_UUID repository variable to the application this repository must deploy (kanban t_e124e983)."
                 exit 1
-                ;;
-            esac
+              fi
 
-            echo "::notice title=Coolify deployment target::${COOLIFY_APP_NAME} (${COOLIFY_APP_UUID}) on ${COOLIFY_API_BASE}"
+              # The uuid came from the provider, so it is validated before it is
+              # interpolated anywhere — the same rule the deployment uuid below is
+              # held to (kanban t_2b136b43, item 3).
+              case "${MATCH_UUID}" in
+                *[!A-Za-z0-9._-]*)
+                  echo "::error title=Coolify returned an unexpected application uuid::The uuid of '${COOLIFY_APP_NAME}' is not a plain [A-Za-z0-9._-] identifier, so it is not used: ${LOOKUP_ONE_LINE}"
+                  exit 1
+                  ;;
+              esac
+
+              COOLIFY_APP_UUID="${MATCH_UUID}"
+              echo "::notice title=Coolify app resolved::${COOLIFY_APP_NAME} → ${COOLIFY_APP_UUID}"
+            fi
           fi
 
-          echo "Triggering Coolify deployment for slimverlof..."
+          echo "Triggering Coolify deployment for rabar.nl..."
           BODY_FILE="$(mktemp)"
           # --fail-with-body makes curl exit non-zero on HTTP >= 400 while still
-          # writing the error body to BODY_FILE, so a 401 is reported instead of
-          # silently parsed. `|| true` keeps the HTTP code available for the
-          # checks below instead of aborting before we can annotate the error.
+          # writing the error body to BODY_FILE, so a 404 (deleted app uuid) or a
+          # 401 (stale token) is reported instead of silently parsed. `|| true`
+          # keeps the HTTP code available for the checks below instead of
+          # aborting before we can annotate the error.
           HTTP_CODE="$(curl -sS --fail-with-body -o "${BODY_FILE}" -w '%{http_code}' \
             -X POST "${COOLIFY_API_BASE}/deploy" \
             -H "Authorization: Bearer ${COOLIFY_API_TOKEN}" \
@@ -208,18 +207,7 @@ jobs:
           echo "Response: ${RESPONSE_ONE_LINE}"
 
           if [ "${HTTP_CODE}" -lt 200 ] || [ "${HTTP_CODE}" -ge 300 ]; then
-            case "${HTTP_CODE}" in
-              404)
-                # Coolify answers `No resources found.` for an application uuid that
-                # does not exist on this instance — a re-created application has a
-                # different uuid — so this is a target problem, not a token problem
-                # (runs #11 and #12 of this workflow failed here).
-                echo "::error title=Coolify application not found::HTTP 404 from ${COOLIFY_API_BASE}/deploy for application ${COOLIFY_APP_UUID}: ${RESPONSE_ONE_LINE} (Coolify answers \"No resources found.\" when that application uuid does not exist on this instance. Re-read GET ${COOLIFY_API_BASE}/applications, then set COOLIFY_APP_NAME or the COOLIFY_APP_UUID repository variable to the live application.)"
-                ;;
-              *)
-                echo "::error title=Coolify rejected the deployment::HTTP ${HTTP_CODE} from ${COOLIFY_API_BASE}/deploy: ${RESPONSE_ONE_LINE} (HTTP 401 'Unauthenticated.' means the COOLIFY_API_TOKEN secret is stale or revoked — rotate it and re-run this workflow; issue #6)."
-                ;;
-            esac
+            echo "::error title=Coolify rejected the deployment::HTTP ${HTTP_CODE} from ${COOLIFY_API_BASE}/deploy: ${RESPONSE_ONE_LINE} (HTTP 404 'No resources found.' means the Coolify app uuid ${COOLIFY_APP_UUID} no longer exists — check the app in Coolify; HTTP 401 'Unauthenticated.' means the COOLIFY_API_TOKEN secret is stale or revoked — rotate it and re-run this workflow; kanban t_5d2882f3)."
             exit 1
           fi
 
@@ -263,14 +251,14 @@ jobs:
           echo "deployment_uuid=${DEPLOY_UUID}" >> "${GITHUB_OUTPUT}"
           echo "::notice title=Coolify deployment queued::${DEPLOY_UUID}"
 
-      # A queued deployment can still fail to build (see #5, the nixpacks Node
-      # version fix). Without this step the job went green the moment Coolify
-      # accepted the request, so a broken build looked like a successful deploy.
+      # A queued deployment can still fail to build, so the job must not go green
+      # the moment Coolify accepted the request. Only Coolify reporting the build
+      # as `finished` counts as a successful deploy.
       - name: Wait for Coolify deployment to finish
         env:
           COOLIFY_API_TOKEN: ${{ secrets.COOLIFY_API_TOKEN }}
           COOLIFY_API_BASE: ${{ vars.COOLIFY_API_BASE }}
-          COOLIFY_APP_NAME: rabar-nl-production
+          COOLIFY_APP_NAME: rabar.nl
           DEPLOYMENT_UUID: ${{ steps.trigger.outputs.deployment_uuid }}
           DEPLOYMENT_ATTEMPTS: "60"
           DEPLOYMENT_WAIT_SECONDS: "20"
@@ -278,7 +266,7 @@ jobs:
           set -euo pipefail
 
           COOLIFY_API_BASE="${COOLIFY_API_BASE:-https://dev.7rb.nl/api/v1}"
-          COOLIFY_APP_NAME="${COOLIFY_APP_NAME:-rabar-nl-production}"
+          COOLIFY_APP_NAME="${COOLIFY_APP_NAME:-rabar.nl}"
           ATTEMPTS="${DEPLOYMENT_ATTEMPTS:-60}"
           WAIT_SECONDS="${DEPLOYMENT_WAIT_SECONDS:-20}"
           DEPLOYMENT_UUID="${DEPLOYMENT_UUID:-}"

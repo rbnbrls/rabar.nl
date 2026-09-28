@@ -1,8 +1,11 @@
 // Ghost Content API client for Rabar blog
 // Replace these values with your actual Ghost credentials
 
-const GHOST_URL = import.meta.env.GHOST_URL || 'https://demo.ghost.io';
-const GHOST_KEY = import.meta.env.GHOST_KEY || '22444f78447824223cefc48062'; // Demo key
+// Astro/Vite replaces `import.meta.env.GHOST_URL` with the build-time value;
+// under plain Node (the unit tests import this module directly) `import.meta.env`
+// does not exist, so the optional chain keeps the module loadable there too.
+const GHOST_URL = import.meta.env?.GHOST_URL || 'https://demo.ghost.io';
+const GHOST_KEY = import.meta.env?.GHOST_KEY || '22444f78447824223cefc48062'; // Demo key
 
 interface GhostPost {
   id: string;
