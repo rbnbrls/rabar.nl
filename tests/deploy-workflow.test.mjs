@@ -541,12 +541,17 @@ stepTest('the job timeout leaves headroom above the worst-case poll budget', () 
   const timeout = Number(workflow.match(/timeout-minutes:\s*(\d+)/)?.[1]);
   const attempts = Number(workflow.match(/DEPLOYMENT_ATTEMPTS:\s*"(\d+)"/)?.[1]);
   const wait = Number(workflow.match(/DEPLOYMENT_WAIT_SECONDS:\s*"(\d+)"/)?.[1]);
+  // kanban t_b3c11ef4: the public-route probe waits too, so its budget is part of
+  // what the job timeout has to clear.
+  const routeAttempts = Number(workflow.match(/ROUTE_ATTEMPTS:\s*"(\d+)"/)?.[1]);
+  const routeWait = Number(workflow.match(/ROUTE_WAIT_SECONDS:\s*"(\d+)"/)?.[1]);
   assert.ok(
-    Number.isFinite(timeout) && Number.isFinite(attempts) && Number.isFinite(wait),
-    'the job timeout and the poll budget must be declared in the workflow',
+    [timeout, attempts, wait, routeAttempts, routeWait].every(Number.isFinite),
+    'the job timeout and every wait budget must be declared in the workflow',
   );
-  // The final attempt no longer sleeps, so the worst case is (attempts - 1) sleeps.
-  const budgetSeconds = (attempts - 1) * wait;
+  // The final attempt of each loop no longer sleeps, so the worst case is
+  // (attempts - 1) sleeps per loop.
+  const budgetSeconds = (attempts - 1) * wait + (routeAttempts - 1) * routeWait;
   assert.ok(
     timeout * 60 >= budgetSeconds + 600,
     `timeout-minutes: ${timeout} must exceed the ${budgetSeconds}s poll budget by at least 10 min of curl overhead`,
@@ -599,5 +604,101 @@ stepTest('a status carrying an escaped newline cannot forge a line in the wait s
     output,
     /last status: pending ::error title=forged::pwned/,
     'the timeout annotation must quote the status on one line',
+  );
+});
+
+// ── Kanban t_b3c11ef4 ────────────────────────────────────────────────────────
+//
+// "Coolify said `finished`" is not release evidence: the routing labels are baked
+// into the container at build time, so rabar.nl served `https://rabar.nl` — the
+// route every browser uses — the proxy's `503 no available server` from the
+// 2026-10-01T17:24Z deployment until it was redeployed with a corrected public
+// domain on 2026-10-03, while this workflow stayed green for two days. The step
+// these tests exercise closes that hole: after the deployment finishes, the job
+// verifies the public route the way a browser reaches it.
+const ROUTE_STEP = 'Verify the deployed site answers on its public route';
+const FAST_ROUTE_ENV = { ROUTE_ATTEMPTS: '3', ROUTE_WAIT_SECONDS: '0' };
+const routeStep = (responses, env = {}) =>
+  runStep(ROUTE_STEP, { responses, env: { ...FAST_ROUTE_ENV, ...env } });
+// The proxy's answer during the incident this card was filed for, spelled on one
+// line the way the curl stub carries a real newline.
+const NO_AVAILABLE_SERVER = 'no available server__NL__';
+
+stepTest('route step is green when the public route answers 200', () => {
+  const { status, output, curlCalls } = routeStep(['200|<!DOCTYPE html>']);
+  assert.equal(status, 0, `a 200 route must pass the step, got exit ${status}\n${output}`);
+  assert.match(output, /::notice title=Production route verified::/);
+  assert.equal(curlCalls.length, 1, 'a route that answers must be probed once');
+});
+
+stepTest('route step fails on the 503 no-available-server this card was filed for', () => {
+  const { status, output, curlCalls, sleeps } = routeStep([`503|${NO_AVAILABLE_SERVER}`]);
+  assert.notEqual(status, 0, `the incident's 503 must fail the step, got exit ${status}\n${output}`);
+  assert.match(output, /::error title=Production route is not serving::/);
+  assert.match(output, /HTTP 503/);
+  assert.match(output, /https:\/\/rabar\.nl\b/, 'the annotation must name the route that failed');
+  assert.match(output, /no available server/, 'the annotation must quote the proxy body');
+  assert.doesNotMatch(output, /::notice title=Production route verified::/);
+  assert.equal(curlCalls.length, 3, `the route must be retried for the whole budget, got ${curlCalls.length} probes`);
+  assert.equal(sleeps.length, 2, `three attempts must sleep twice, not ${sleeps.length} times`);
+});
+
+stepTest('route step probes the https route a browser uses, not the declared http one', () => {
+  // Probing the declared scheme is exactly what would have missed this incident:
+  // `http://rabar.nl` answered 200 throughout while `https://rabar.nl` answered
+  // 503, so a probe of the declared route would have gone green.
+  const { status, curlCalls } = routeStep(['200|<!DOCTYPE html>'], { PRODUCTION_URL: 'http://rabar.nl' });
+  assert.equal(status, 0, 'the upgrade probe must follow the browser, not the declaration');
+  assert.ok(
+    curlCalls[0].includes(' https://rabar.nl/'),
+    `the probe must use the browser's scheme: ${curlCalls[0]}`,
+  );
+  assert.ok(
+    !curlCalls[0].includes(' http://rabar.nl/'),
+    `the declared http route must not be the probe: ${curlCalls[0]}`,
+  );
+});
+
+stepTest('route step retries a cold route and goes green once it answers', () => {
+  const { status, output, curlCalls } = routeStep([`503|${NO_AVAILABLE_SERVER}`, '200|<!DOCTYPE html>']);
+  assert.equal(status, 0, `a route that comes up inside the retry budget must pass, got exit ${status}\n${output}`);
+  assert.equal(curlCalls.length, 2, 'the step must retry before it gives up');
+  assert.match(output, /\[1\/3\] .* answered HTTP 503/);
+  assert.match(output, /::notice title=Production route verified::/);
+});
+
+stepTest('route step refuses a declared production URL that is not a route', () => {
+  for (const value of ['rabar.nl', 'https://', '/rabar.nl', 'ftp://rabar.nl', 'https://ra bar/']) {
+    const { status, output, curlCalls } = routeStep(['200|<!DOCTYPE html>'], { PRODUCTION_URL: value });
+    assert.notEqual(status, 0, `PRODUCTION_URL=${value} must fail the step, got exit ${status}\n${output}`);
+    assert.match(output, /::error/);
+    assert.equal(curlCalls.length, 0, `an unusable URL must not be probed: ${value}`);
+  }
+});
+
+stepTest('route step does not touch the Coolify API and never prints the API token', () => {
+  const { output, curlCalls } = routeStep(['200|<!DOCTYPE html>']);
+  assert.ok(
+    curlCalls.every((call) => !call.includes('/api/v1')),
+    `the route probe must be a plain public GET: ${curlCalls.join(' | ')}`,
+  );
+  assert.doesNotMatch(output, new RegExp(FAKE_TOKEN), 'the token must never reach the log');
+});
+
+stepTest('the route step default is the site this repository declares', () => {
+  // One source of truth for "where does production live": `astro.config.mjs`
+  // already declares it for the built site, so the workflow's run-time default has
+  // to be the same URL, or the probe would verify a route no visitor uses.
+  const astro = readFileSync(path.join(here, '..', 'astro.config.mjs'), 'utf8');
+  const site = astro.match(/site:\s*'([^']+)'/)?.[1];
+  assert.equal(site, 'https://rabar.nl', 'astro.config.mjs must declare the production site');
+  assert.ok(
+    stepRun(ROUTE_STEP).includes(`PRODUCTION_URL="\${PRODUCTION_URL:-${site}}"`),
+    'the route step default must be the site astro.config.mjs declares',
+  );
+  assert.match(
+    workflow,
+    /PRODUCTION_URL: \$\{\{ vars\.PRODUCTION_URL \}\}/,
+    'the route must stay overridable per repository',
   );
 });

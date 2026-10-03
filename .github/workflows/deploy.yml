@@ -64,10 +64,11 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # Worst case poll budget: 60 attempts × 20s sleep = 20 min, plus one curl per
-    # attempt (59 sleeps now that the final attempt no longer sleeps). 30 min
-    # leaves ~10 min of headroom instead of the ~5 min the old 25 min allowed.
-    timeout-minutes: 30
+    # Worst case wait budget: 60 attempts × 20s sleep = 20 min (59 sleeps now that
+    # the final attempt no longer sleeps) plus the public-route probe's 11 × 10s =
+    # ~2 min, plus one curl per attempt. 35 min keeps the ≥10 min of curl overhead
+    # the job has always reserved (kanban t_2b136b43, extended by t_b3c11ef4).
+    timeout-minutes: 35
     steps:
       - name: Trigger Coolify deployment
         id: trigger
@@ -359,4 +360,96 @@ jobs:
           done
 
           echo "::error title=Coolify deployment not verified::${DEPLOYMENT_UUID} did not reach 'finished' within $((ATTEMPTS * WAIT_SECONDS))s (last status: ${STATUS_ONE_LINE:-<none>}). It may still be queued behind another build — re-run this workflow once the Coolify queue is clear."
+          exit 1
+
+      # Kanban t_b3c11ef4: a deployment Coolify reports as `finished` is not release
+      # evidence. Coolify bakes the routed labels into the container when it builds
+      # it, so an application whose public domain was declared `http://rabar.nl`
+      # while `is_force_https_enabled` redirects http to https served
+      # `http://rabar.nl` a 200 to nobody's browser and `https://rabar.nl` — the
+      # route every browser uses — the proxy's `503 no available server`
+      # (deployment wh6cict1nipkgv4oe9unqpbq finished 2026-10-01T17:24Z; the route
+      # was still 503 on 2026-10-03T09:35Z and only came back when the application
+      # was redeployed with the corrected domain at 09:37Z). This workflow stayed
+      # green throughout, and the first component to notice was the factory's own
+      # public-endpoint watcher. A green run must therefore also mean "a browser can
+      # load the site", so the job probes the public route and only a 2xx/3xx ends it.
+      #
+      # The probe deliberately forces `https` and follows redirects: probing the
+      # declared scheme is exactly what would have missed the incident, and a browser
+      # follows the redirect chain to whatever the visitor actually lands on.
+      - name: Verify the deployed site answers on its public route
+        id: route
+        env:
+          # An unset repo variable expands to "" and the `:-` default applies — the
+          # same contract the trigger step uses. The default is the URL this
+          # repository already declares for the built site (`astro.config.mjs`
+          # `site:`); tests/deploy-workflow.test.mjs pins the two together so the
+          # probe can never verify a route nobody visits.
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+          ROUTE_ATTEMPTS: "12"
+          ROUTE_WAIT_SECONDS: "10"
+        run: |
+          set -euo pipefail
+
+          PRODUCTION_URL="${PRODUCTION_URL:-https://rabar.nl}"
+          ATTEMPTS="${ROUTE_ATTEMPTS:-12}"
+          WAIT_SECONDS="${ROUTE_WAIT_SECONDS:-10}"
+
+          # Only a scheme+host is a route. A bare host, a path, or a host carrying
+          # shell metacharacters must fail before a request is made, so a copy-paste
+          # error in a repository variable produces an annotation instead of a probe
+          # of whatever it happened to spell.
+          case "${PRODUCTION_URL}" in
+            http://*|https://*) ;;
+            *)
+              echo "::error title=Production URL is not a route::PRODUCTION_URL='${PRODUCTION_URL}' is not an http(s) URL, so the deployed site's public route could not be verified. Set the PRODUCTION_URL repository variable to the public https URL of this application (kanban t_b3c11ef4)."
+              exit 1
+              ;;
+          esac
+          ROUTE_HOST="$(printf '%s' "${PRODUCTION_URL}" | sed -E 's#^https?://##; s#/.*$##')"
+          case "${ROUTE_HOST}" in
+            ''|*[!A-Za-z0-9.-]*)
+              echo "::error title=Production URL has no plain host::PRODUCTION_URL='${PRODUCTION_URL}' does not carry a plain [A-Za-z0-9.-] host, so the deployed site's public route could not be verified (kanban t_b3c11ef4)."
+              exit 1
+              ;;
+          esac
+          PROBE_URL="https://${ROUTE_HOST}/"
+
+          ROUTE_CODE=""
+          ROUTE_BODY_ONE_LINE=""
+          for attempt in $(seq 1 "${ATTEMPTS}"); do
+            PROBE_FILE="$(mktemp)"
+            # No `--fail`: a 503 is the answer being verified, not a transport
+            # failure, and its body is what an operator needs to read. The body is
+            # third-party text, so it is reduced to one bounded line before it can
+            # reach a log line or an annotation (kanban t_0838bbdf).
+            ROUTE_CODE="$(curl -sS -o "${PROBE_FILE}" -w '%{http_code}' \
+              --location --max-redirs 5 --max-time 15 "${PROBE_URL}" || true)"
+            ROUTE_BODY="$(cat "${PROBE_FILE}" 2>/dev/null || true)"
+            rm -f "${PROBE_FILE}"
+            # A transport error prints no status code at all; `000` keeps that an
+            # explicit non-2xx instead of an arithmetic error (kanban t_2b136b43).
+            case "${ROUTE_CODE}" in
+              ''|*[!0-9]*) ROUTE_CODE="000" ;;
+            esac
+            ROUTE_BODY_ONE_LINE="$(printf '%s' "${ROUTE_BODY}" | tr -d '\r' | tr '\n\t' '  ' | cut -c1-200)"
+
+            echo "[${attempt}/${ATTEMPTS}] ${PROBE_URL} answered HTTP ${ROUTE_CODE} ${ROUTE_BODY_ONE_LINE}"
+
+            if [ "${ROUTE_CODE}" -ge 200 ] && [ "${ROUTE_CODE}" -lt 400 ]; then
+              echo "::notice title=Production route verified::${PROBE_URL} answered HTTP ${ROUTE_CODE}."
+              exit 0
+            fi
+
+            if [ "${attempt}" -lt "${ATTEMPTS}" ]; then
+              sleep "${WAIT_SECONDS}"
+            fi
+          done
+
+          # Both causes look identical from here, so the remedy names both: a public
+          # domain Coolify has never routed (its scheme must be https) and a domain
+          # corrected *after* the last build, where the corrected labels only take
+          # effect on a redeploy — which re-running this workflow performs.
+          echo "::error title=Production route is not serving::${PROBE_URL} answered HTTP ${ROUTE_CODE} on all ${ATTEMPTS} attempts (last body: ${ROUTE_BODY_ONE_LINE:-<empty>}) even though Coolify reported the deployment finished, so the site is unreachable for a browser. Check that ${ROUTE_HOST} is the application's public domain in Coolify with the https scheme, then re-run this workflow so the container is rebuilt with the corrected routing labels. kanban t_b3c11ef4."
           exit 1
